@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "fapi"
+version = "0.0.1"
+description = "The Finance API (fapi) provides access to personal financial data stored across various platforms."
+authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+beancount = "^2.3.4"
+fastapi = "^0.71.0"
+uvicorn = {extras = ["standard"], version = "^0.16.0"}
+boto3 = "^1.20.31"
+SQLAlchemy = "^1.4.29"
+psycopg2-binary = "^2.9.3"
+
+[tool.poetry.dev-dependencies]
+black = {version = "^21.12b0", allow-prereleases = true}
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
