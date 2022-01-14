@@ -1,21 +1,18 @@
+from os import stat
 from beancount.core import data, getters, realization
 from sqlalchemy.sql.expression import desc
 from ..dependencies import get_entries
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
+from ..models.beancount import Account, Amount, Transaction
 from pydantic import BaseModel
 from typing import Dict, List
 
 router = APIRouter()
 
 
-class Balance(BaseModel):
-    number: float
-    currency: str
-
-
 @router.get(
     "/balances",
-    response_model=Dict[str, Balance],
+    response_model=Dict[str, Amount],
     summary="Calculate account balances",
     response_description="A dictionary of account names and their respective `Balance`",
 )
@@ -43,18 +40,18 @@ def balances(
             continue
 
         if position:
-            balances[account.account] = Balance(
+            balances[account.account] = Amount(
                 number=float(position.units.number), currency=position.units.currency
             )
         else:
-            balances[account.account] = Balance(number=0.00, currency=default_currency)
+            balances[account.account] = Amount(number=0.00, currency=default_currency)
 
     return balances
 
 
 @router.get(
     "/balance/{account_name}",
-    response_model=Balance,
+    response_model=Amount,
     summary="Calculate the balance of an account",
     response_description="A `Balance` with the account balance",
 )
@@ -89,12 +86,12 @@ def balance(
         )
 
     if position:
-        return Balance(
+        return Amount(
             number=position.units.number,
             currency=position.units.currency,
         )
     else:
-        return Balance(number=0.00, currency=default_currency)
+        return Amount(number=0.00, currency=default_currency)
 
 
 @router.get("/accounts", response_model=List[str])
@@ -102,27 +99,42 @@ def accounts(entries=Depends(get_entries)):
     return list(getters.get_accounts(entries))
 
 
+@router.get("/account/{account_name}", response_model=Account)
+def account(account_name: str, entries=Depends(get_entries)):
+    accounts = realization.realize(entries)
+    account = realization.get(accounts, account_name)
+    if account is None:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    # TODO: Support inventories with multiple positions
+    try:
+        position = account.balance.get_only_position()
+        balance = Amount(
+            number=float(position.units.number), currency=position.units.currency
+        )
+    except AssertionError:
+        balance = None
+
+    txns = []
+    open = None
+    close = None
+    for t in account.txn_postings:
+        if isinstance(t, data.TxnPosting):
+            txns.append(Transaction.from_bean(t.txn))
+        elif isinstance(t, data.Open):
+            open = t.date
+        elif isinstance(t, data.Close):
+            close = t.date
+
+    return Account(
+        name=account_name, balance=balance, open=open, close=close, transactions=txns
+    )
+
+
 @router.get("/transactions")
 def transactions(entries=Depends(get_entries)):
     txns = []
     for txn in data.filter_txns(entries):
-        postings = []
-        for posting in txn.postings:
-            postings.append(
-                {
-                    "account": posting.account,
-                    "amount": float(posting.units.number),
-                    "currency": posting.units.currency,
-                }
-            )
-        txns.append(
-            {
-                "date": txn.date,
-                "flag": txn.flag,
-                "payee": txn.payee,
-                "narration": txn.narration,
-                "postings": postings,
-            }
-        )
+        txns.append(Transaction.from_bean(txn))
 
     return txns
