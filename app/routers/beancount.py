@@ -1,10 +1,7 @@
-from os import stat
 from beancount.core import data, getters, realization
-from sqlalchemy.sql.expression import desc
 from ..dependencies import get_entries
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from ..models.beancount import Account, Amount, Transaction
-from pydantic import BaseModel
 from typing import Dict, List
 
 router = APIRouter()
@@ -12,7 +9,7 @@ router = APIRouter()
 
 @router.get(
     "/balances",
-    response_model=Dict[str, Amount],
+    response_model=Dict[str, Dict[str, Amount]],
     summary="Calculate account balances",
     response_description="A dictionary of account names and their respective `Balance`",
 )
@@ -33,25 +30,19 @@ def balances(
     accounts = realization.realize(entries)
     balances = {}
     for account in realization.iter_children(accounts, True):
-        # TODO: Support inventories with multiple positions
-        try:
-            position = account.balance.get_only_position()
-        except AssertionError:
-            continue
-
-        if position:
-            balances[account.account] = Amount(
-                number=float(position.units.number), currency=position.units.currency
+        inventory = {}
+        for currency in account.balance.currencies():
+            inventory[currency] = Amount.from_bean(
+                account.balance.get_currency_units(currency)
             )
-        else:
-            balances[account.account] = Amount(number=0.00, currency=default_currency)
+        balances[account.account] = inventory
 
     return balances
 
 
 @router.get(
     "/balance/{account_name}",
-    response_model=Amount,
+    response_model=Dict[str, Amount],
     summary="Calculate the balance of an account",
     response_description="A `Balance` with the account balance",
 )
@@ -76,22 +67,13 @@ def balance(
     if account is None:
         raise HTTPException(status_code=404, detail="Account not found")
 
-    # TODO: Support inventories with multiple positions
-    try:
-        position = account.balance.get_only_position()
-    except AssertionError:
-        raise HTTPException(
-            status_code=400,
-            detail="Accounts with multiple positions are not currently supported",
+    inventory = {}
+    for currency in account.balance.currencies():
+        inventory[currency] = Amount.from_bean(
+            account.balance.get_currency_units(currency)
         )
 
-    if position:
-        return Amount(
-            number=position.units.number,
-            currency=position.units.currency,
-        )
-    else:
-        return Amount(number=0.00, currency=default_currency)
+    return inventory
 
 
 @router.get("/accounts", response_model=List[str])
