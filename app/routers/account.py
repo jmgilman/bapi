@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from ..dependencies import get_beanfile
 from ..models.core import Account
 from typing import List
 
-router = APIRouter()
+router = APIRouter(prefix="/account", tags=["accounts"])
 
 
 @router.get(
-    "/account",
+    "/",
     response_model=List[str],
     summary="Fetch a list of all account names",
     response_description="A list of all account names",
@@ -18,12 +18,15 @@ def accounts(beanfile=Depends(get_beanfile)):
 
 
 @router.get(
-    "/account/{account_name}",
+    "/{account_name}",
     response_model=Account,
     summary="Fetch the details of an account.",
     response_description="An `Account` containing the given account details",
 )
-def account(account_name: str, beanfile=Depends(get_beanfile)):
+def account(
+    account_name: str = Path("", description="The account name to lookup"),
+    beanfile=Depends(get_beanfile),
+):
     """Fetches and returns various details about an account in the ledger file."""
     if account_name not in beanfile.accounts:
         raise HTTPException(status_code=404, detail="Account not found")

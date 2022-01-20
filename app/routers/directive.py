@@ -3,7 +3,7 @@ from ..dependencies import get_beanfile
 from ..models.directives import Directive
 from typing import List
 
-router = APIRouter(prefix="/directive", tags=["directive"])
+router = APIRouter(prefix="/directive", tags=["directives"])
 
 
 @router.get(

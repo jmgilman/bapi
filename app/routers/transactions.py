@@ -2,25 +2,34 @@ import datetime
 
 from beancount.core import data
 from ..dependencies import get_beanfile
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from ..internal.beancount import FullTextSearch, txn_has_account
 from ..models.directives import Transaction
 from typing import List, Optional
 
-router = APIRouter()
+router = APIRouter(prefix="/transaction", tags=["transactions"])
 
 
 @router.get(
-    "/transactions",
+    "/",
     response_model=List[Transaction],
     summary="Fetch all transactions",
     response_description="A list of (potentially filtered) transactions.",
 )
 def transactions(
-    account: Optional[str] = None,
-    start: Optional[datetime.date] = None,
-    end: Optional[datetime.date] = None,
-    search: Optional[str] = None,
+    account: Optional[str] = Query(
+        None, description="Exclude transactions not matching the given name"
+    ),
+    start: Optional[datetime.date] = Query(
+        None, description="Exclude transactions with a date before the given date"
+    ),
+    end: Optional[datetime.date] = Query(
+        None, description="Exclude transactions with a date greater than the given date"
+    ),
+    search: Optional[str] = Query(
+        None,
+        description="Performs a full text search with the given string across all transactions",
+    ),
     beanfile=Depends(get_beanfile),
 ):
     """Fetches all transactions contained within the beancount ledger.
