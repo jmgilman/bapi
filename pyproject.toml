@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "fapi"
+name = "bapi"
 version = "0.0.1"
-description = "The Finance API (fapi) provides access to personal financial data stored across various platforms."
+description = "The Beancount API (bapi) provides an HTTP API for interacting with a Beancount ledger file"
 authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
 
 [tool.poetry.dependencies]
