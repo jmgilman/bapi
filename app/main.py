@@ -2,7 +2,7 @@ import os
 
 from fastapi import FastAPI
 from .internal import s3
-from .routers import account, balance, transactions
+from .routers import account, balance, directive, transactions
 from .settings import settings
 
 description = """
@@ -29,6 +29,7 @@ app = FastAPI(
 )
 app.include_router(account.router)
 app.include_router(balance.router)
+app.include_router(directive.router)
 app.include_router(transactions.router)
 
 
