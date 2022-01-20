@@ -1,3 +1,5 @@
+import os
+
 from pydantic import BaseSettings
 
 
@@ -8,3 +10,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+bean_file = os.path.join(settings.working_dir, settings.bean_file)
