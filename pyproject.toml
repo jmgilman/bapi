@@ -10,8 +10,6 @@ beancount = "^2.3.4"
 fastapi = "^0.71.0"
 uvicorn = {extras = ["standard"], version = "^0.16.0"}
 boto3 = "^1.20.31"
-SQLAlchemy = "^1.4.29"
-psycopg2-binary = "^2.9.3"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^21.12b0", allow-prereleases = true}
