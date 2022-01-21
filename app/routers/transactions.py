@@ -57,8 +57,7 @@ def transactions(
 
     filtered = list(filter(apply, beanfile.directives.transaction))
     if search:
-        fts = FullTextSearch()
-        fts.index(filtered)
+        fts = FullTextSearch(filtered)
         return fts.search(search)
     else:
         return filtered

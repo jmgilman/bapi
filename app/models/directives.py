@@ -41,7 +41,7 @@ class Pad(BaseDirective):
 class Balance(BaseDirective):
     account: Account
     amount: Amount
-    tolerance: Optional[float]
+    tolerance: Optional[Decimal]
     diff_amount: Optional[Amount]
 
 
@@ -54,7 +54,7 @@ class Transaction(BaseDirective):
     postings: List[Posting]
 
 
-class TxnPosting(BaseDirective):
+class TxnPosting(BaseModel):
     txn: Transaction
     posting: Posting
 
@@ -214,6 +214,11 @@ def to_model(directive: data.Directive) -> Directive:
             links=directive.links,
             postings=[to_data_model(posting) for posting in directive.postings],
         )
+    elif isinstance(directive, data.TxnPosting):
+        return TxnPosting(
+            txn=to_model(directive.txn),
+            posting=to_data_model(directive.posting),
+        )
     elif isinstance(directive, data.Note):
         return Note(
             date=directive.date,
@@ -304,7 +309,7 @@ def from_model(directive: Directive) -> data.Directive:
             meta=directive.meta,
             account=directive.account,
             amount=from_data_model(directive.amount),
-            tolerance=Decimal(directive.tolerance),
+            tolerance=Decimal(directive.tolerance) if directive.tolerance else None,
             diff_amount=from_data_model(directive.diff_amount),
         )
     elif isinstance(directive, Transaction):
@@ -317,6 +322,11 @@ def from_model(directive: Directive) -> data.Directive:
             tags=directive.tags,
             links=directive.links,
             postings=[from_data_model(posting) for posting in directive.postings],
+        )
+    elif isinstance(directive, TxnPosting):
+        return data.TxnPosting(
+            txn=from_model(directive.txn),
+            posting=from_data_model(directive.posting),
         )
     elif isinstance(directive, Note):
         return data.Note(

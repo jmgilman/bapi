@@ -13,28 +13,28 @@ Meta = Dict[str, Any]
 
 
 class Amount(BaseModel):
-    number: Optional[float]
-    currency: str
+    number: Optional[Decimal]
+    currency: Currency
 
 
 class Cost(BaseModel):
-    number: float
-    currency: str
+    number: Decimal
+    currency: Currency
     date: datetime.date
     label: Optional[str]
 
 
 class CostSpec(BaseModel):
-    number_per: Optional[float]
-    number_total: Optional[float]
-    currency: Optional[str]
+    number_per: Optional[Decimal]
+    number_total: Optional[Decimal]
+    currency: Optional[Currency]
     date: Optional[datetime.date]
     label: Optional[str]
     merge: Optional[bool]
 
 
 class Posting(BaseModel):
-    account: str
+    account: Account
     units: Amount
     cost: Optional[Union[Cost, CostSpec]]
     price: Optional[Amount]
@@ -66,15 +66,15 @@ def to_model(
         return Amount(number=object.number, currency=object.currency)
     elif isinstance(object, data.Cost):
         return Cost(
-            number=float(object.number),
+            number=object.number,
             currency=object.currency,
             date=object.date,
             label=object.label,
         )
     elif isinstance(object, data.CostSpec):
         return CostSpec(
-            number_per=float(object.number_per),
-            number_total=float(object.number_total),
+            number_per=object.number_per,
+            number_total=object.number_total,
             currency=object.currency,
             date=object.date,
             label=object.label,
@@ -110,15 +110,15 @@ def from_model(
         return data.Amount(number=object.number, currency=object.currency)
     elif isinstance(object, Cost):
         return data.Cost(
-            number=Decimal(object.number),
+            number=object.number,
             currency=object.currency,
             date=object.date,
             label=object.label,
         )
     elif isinstance(object, CostSpec):
         return data.CostSpec(
-            number_per=Decimal(object.number_per),
-            number_total=Decimal(object.number_total),
+            number_per=object.number_per,
+            number_total=object.number_total,
             currency=object.currency,
             date=object.date,
             label=object.label,

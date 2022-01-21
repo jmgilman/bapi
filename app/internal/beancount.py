@@ -22,7 +22,7 @@ class FullTextSearch:
         """
         self._index = {}
         self._transactions = {}
-        self._index(txs)
+        self._index_transactions(txs)
 
     def search(self, query: str):
         """Searches the index using the given query string.
@@ -43,7 +43,7 @@ class FullTextSearch:
         indexes = [self._index.get(token, set()) for token in tokens]
         return [self._transactions[id] for id in set.intersection(*indexes)]
 
-    def _index(self, txs: List[data.Transaction]):
+    def _index_transactions(self, txs: List[data.Transaction]):
         """Populates the internal index using the given list of transactions."""
         for tx_id, tx in enumerate(txs):
             full_text = " ".join([(tx.narration or ""), (tx.payee or "")])

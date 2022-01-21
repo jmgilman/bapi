@@ -12,7 +12,7 @@ router = APIRouter(prefix="/balance", tags=["balances"])
     summary="Fetch all balances from all accounts",
     response_description="A dictionary of account names and their balances, grouped by currencies",
 )
-def accounts_balance(
+def balance(
     beanfile=Depends(get_beanfile),
 ):
     """
@@ -36,11 +36,11 @@ def accounts_balance(
 
 @router.get(
     "/{account_name}",
-    response_model=Dict[str, Dict[str, Amount]],
+    response_model=Dict[str, Amount],
     summary="Fetch the balances of an account",
     response_description="A dictionary of currency balances and their respective `Amount`'s",
 )
-def accounts_balance(
+def account(
     account_name: str = Path("", description="The account name to get the balance of"),
     beanfile=Depends(get_beanfile),
 ):
