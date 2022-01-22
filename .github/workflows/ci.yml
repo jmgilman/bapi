@@ -32,7 +32,7 @@ jobs:
         uses: julianwachholz/flake8-action@v2
         with:
           checkName: "Python Lint"
-          path: src/
+          path: app/
       - name: Run Docker lint
         uses: ghe-actions/dockerfile-validator@v1
         with:
