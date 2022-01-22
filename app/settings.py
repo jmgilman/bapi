@@ -23,8 +23,8 @@ class Settings(BaseSettings):
         work_dir: The local working directory where files will be downloaded.
     """
 
-    entrypoint: str
-    s3: S3
+    entrypoint: str = "main.beancount"
+    s3: Optional[S3]
     work_dir: str = "/tmp/bean"
 
     class Config:

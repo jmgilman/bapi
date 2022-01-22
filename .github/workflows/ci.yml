@@ -52,7 +52,7 @@ jobs:
       - name: Install depepdencies
         run: poetry install
       - name: Run tests
-        run: pytest
+        run: poetry run pytest -v
   push:
     name: Push Docker image to container registry
     runs-on: ubuntu-latest
