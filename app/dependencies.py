@@ -1,14 +1,15 @@
-import itertools
-import os
+import jwt
 
 from beancount import loader
 from beancount.core import data, realization
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer
 from functools import lru_cache
 from .models.core import Account, BeanFileError
 from .models.directives import Directives
 from .models.data import to_model as to_data_model
 from .models.directives import to_model as to_directive_model
-from .settings import bean_file
+from .settings import bean_file, settings
 from typing import Any, Dict, List
 
 
@@ -82,3 +83,26 @@ def _load(filepath: str):
 def get_beanfile() -> BeanFile:
     """A cached dependency to ensure a Beanfile is only parsed once."""
     return BeanFile(bean_file)
+
+
+bearer = HTTPBearer()
+
+
+def authenticated(token=Depends(bearer)):
+    """Authorization dependency for validating requests that contain a JWT token."""
+    if settings.jwt:
+        client = jwt.PyJWKClient(settings.jwt.jwks)
+        signing_key = client.get_signing_key_from_jwt(token.credentials).key
+
+        try:
+            payload = jwt.decode(
+                token.credentials,
+                signing_key,
+                algorithms=settings.jwt.algorithms.split(","),
+                audience=settings.jwt.audience,
+                issuer=settings.jwt.issuer,
+            )
+        except jwt.exceptions.DecodeError as e:
+            raise HTTPException(status_code=403, detail=str(e))
+
+        return payload
