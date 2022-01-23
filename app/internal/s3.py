@@ -19,7 +19,7 @@ class S3Loader:
         self.settings = settings
 
     def load(self):
-        """Downloads all S3 bucket contents to the configured working directory."""
+        """Downloads all S3 bucket contents to the configured directory."""
         Path(self.settings.work_dir).mkdir(parents=True, exist_ok=True)
         for object in self.bucket.objects.all():
             self._download(object.key)

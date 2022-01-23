@@ -1,5 +1,4 @@
 import datetime
-from hashlib import new
 import itertools
 
 from beancount.core import data
@@ -185,7 +184,9 @@ def to_model(directive: data.Directive) -> Directive:
         )
     elif isinstance(directive, data.Commodity):
         return Commodity(
-            date=directive.date, meta=directive.meta, currency=directive.currency
+            date=directive.date,
+            meta=directive.meta,
+            currency=directive.currency,
         )
     elif isinstance(directive, data.Pad):
         return Pad(
@@ -200,7 +201,9 @@ def to_model(directive: data.Directive) -> Directive:
             meta=filter_meta(directive.meta),
             account=directive.account,
             amount=to_data_model(directive.amount),
-            tolerance=float(directive.tolerance) if directive.tolerance else None,
+            tolerance=float(directive.tolerance)
+            if directive.tolerance
+            else None,
             diff_amount=to_data_model(directive.diff_amount),
         )
     elif isinstance(directive, data.Transaction):
@@ -212,7 +215,9 @@ def to_model(directive: data.Directive) -> Directive:
             narration=directive.narration,
             tags=directive.tags,
             links=directive.links,
-            postings=[to_data_model(posting) for posting in directive.postings],
+            postings=[
+                to_data_model(posting) for posting in directive.postings
+            ],
         )
     elif isinstance(directive, data.TxnPosting):
         return TxnPosting(
@@ -294,7 +299,9 @@ def from_model(directive: Directive) -> data.Directive:
         )
     elif isinstance(directive, Commodity):
         return data.Commodity(
-            date=directive.date, meta=directive.meta, currency=directive.currency
+            date=directive.date,
+            meta=directive.meta,
+            currency=directive.currency,
         )
     elif isinstance(directive, Pad):
         return data.Pad(
@@ -309,7 +316,9 @@ def from_model(directive: Directive) -> data.Directive:
             meta=directive.meta,
             account=directive.account,
             amount=from_data_model(directive.amount),
-            tolerance=Decimal(directive.tolerance) if directive.tolerance else None,
+            tolerance=Decimal(directive.tolerance)
+            if directive.tolerance
+            else None,
             diff_amount=from_data_model(directive.diff_amount),
         )
     elif isinstance(directive, Transaction):
@@ -321,7 +330,9 @@ def from_model(directive: Directive) -> data.Directive:
             narration=directive.narration,
             tags=directive.tags,
             links=directive.links,
-            postings=[from_data_model(posting) for posting in directive.postings],
+            postings=[
+                from_data_model(posting) for posting in directive.postings
+            ],
         )
     elif isinstance(directive, TxnPosting):
         return data.TxnPosting(
@@ -383,7 +394,7 @@ def filter_meta(meta: Dict[str, Any]) -> Dict[str, Any]:
     for key, value in meta.items():
         try:
             encoders.jsonable_encoder(value)
-        except:
+        except Exception:
             continue
         new_meta[key] = value
 

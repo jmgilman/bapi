@@ -10,9 +10,9 @@ version = "0.0.1"
 contact = {"name": "Joshua Gilman", "email": "joshuagilman@gmail.com"}
 license_info = {"name": "MIT", "url": "https://opensource.org/licenses/MIT"}
 description = """
-The Beancount API (bapi) provides an HTTP API for viewing data derived from a 
+The Beancount API (bapi) provides an HTTP API for viewing data derived from a
 Beancount ledger file. It aims to provide as much of the underlying data as
-possible in responses in order to maximize integration with other platforms. 
+possible in responses in order to maximize integration with other platforms.
 """
 
 # Setup app
@@ -48,4 +48,6 @@ def startup():
         s3.load()
 
     if not exists(bean_file):
-        raise FileNotFoundError(f"Unable to locate beancount file at: {bean_file}")
+        raise FileNotFoundError(
+            f"Unable to locate beancount file at: {bean_file}"
+        )

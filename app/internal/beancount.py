@@ -27,11 +27,11 @@ class FullTextSearch:
     def search(self, query: str):
         """Searches the index using the given query string.
 
-        The query string is broken up into tokens (words) and then each token is
-        analyzed against the index to find transactions which contain the token.
-        For a transaction to be returned it must contain all analyzed tokens.
-        For example, the more tokens passed, the more constrained the search
-        becomes.
+        The query string is broken up into tokens (words) and then each token
+        is analyzed against the index to find transactions which contain the
+        token. For a transaction to be returned it must contain all analyzed
+        tokens. For example, the more tokens passed, the more constrained the
+        search becomes.
 
         Args:
             query: The query string to search with.
@@ -44,7 +44,7 @@ class FullTextSearch:
         return [self._transactions[id] for id in set.intersection(*indexes)]
 
     def _index_transactions(self, txs: List[data.Transaction]):
-        """Populates the internal index using the given list of transactions."""
+        """Populates the internal index using the given transactions."""
         for tx_id, tx in enumerate(txs):
             full_text = " ".join([(tx.narration or ""), (tx.payee or "")])
             tokens = self._tokenize(full_text)

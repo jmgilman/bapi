@@ -37,13 +37,18 @@ class BeanFileError(BaseModel):
             A dictionary keyed by error type and containing a list of
             occurrences of that error type. For example:
 
-            {'ParserSyntaxError': [file.beancount (102: syntax error, unexpected INDENT]}
+            {
+                'ParserSyntaxError':
+                [
+                    file.beancount (102: syntax error, unexpected INDENT
+                ]
+            }
         """
         bean_errors = {}
         for error in errors:
             name = type(error).__name__
 
-            if not name in bean_errors:
+            if name not in bean_errors:
                 bean_errors[name] = []
             bean_errors[name].append(
                 BeanFileError(

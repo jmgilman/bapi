@@ -142,12 +142,16 @@ def mock_directives():
 
 def assert_is_equal(object1, object2):
     for attribute in object1:
-        if not attribute[0].startswith("__") and not inspect.ismethod(attribute[1]):
+        if not attribute[0].startswith("__") and not inspect.ismethod(
+            attribute[1]
+        ):
             attribute1 = attribute[1]
             attribute2 = object2.__getattribute__(attribute[0])
 
             if isinstance(attribute1, list):
-                for sub_attribute1, sub_attribute2 in zip(attribute1, attribute2):
+                for sub_attribute1, sub_attribute2 in zip(
+                    attribute1, attribute2
+                ):
                     return assert_is_equal(sub_attribute1, sub_attribute2)
 
             if (

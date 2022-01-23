@@ -15,6 +15,10 @@ PyJWT = {extras = ["crypto"], version = "^2.3.0"}
 [tool.poetry.dev-dependencies]
 black = {version = "^21.12b0", allow-prereleases = true}
 pytest = "^6.2.5"
+flake8 = "^4.0.1"
+
+[tool.black]
+line-length = 79
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

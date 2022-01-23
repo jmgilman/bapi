@@ -89,7 +89,7 @@ bearer = HTTPBearer()
 
 
 def authenticated(token=Depends(bearer)):
-    """Authorization dependency for validating requests that contain a JWT token."""
+    """Dependency for validating requests that contain a JWT token."""
     if settings.jwt:
         client = jwt.PyJWKClient(settings.jwt.jwks)
         signing_key = client.get_signing_key_from_jwt(token.credentials).key

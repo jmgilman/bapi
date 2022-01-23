@@ -108,7 +108,8 @@ def test_txn_has_account():
                 units=Amount(number=-50.00, currency="USD"),
             ),
             Posting(
-                account="Expenses:Groceries", units=Amount(number=50.00, currency="USD")
+                account="Expenses:Groceries",
+                units=Amount(number=50.00, currency="USD"),
             ),
         ],
     )

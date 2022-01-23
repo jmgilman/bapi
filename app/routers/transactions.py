@@ -21,14 +21,21 @@ def transactions(
         None, description="Exclude transactions not matching the given name"
     ),
     start: Optional[datetime.date] = Query(
-        None, description="Exclude transactions with a date before the given date"
+        None,
+        description="Exclude transactions with a date before the given date",
     ),
     end: Optional[datetime.date] = Query(
-        None, description="Exclude transactions with a date greater than the given date"
+        None,
+        description=(
+            "Exclude transactions with a date greater than the given date"
+        ),
     ),
     search: Optional[str] = Query(
         None,
-        description="Performs a full text search with the given string across all transactions",
+        description=(
+            "Performs a full text search with the given string across all "
+            "transactions"
+        ),
     ),
     beanfile=Depends(get_beanfile),
 ):

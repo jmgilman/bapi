@@ -27,7 +27,7 @@ def account(
     account_name: str = Path("", description="The account name to lookup"),
     beanfile=Depends(get_beanfile),
 ):
-    """Fetches and returns various details about an account in the ledger file."""
+    """Fetches and returns various details about an account."""
     if account_name not in beanfile.accounts:
         raise HTTPException(status_code=404, detail="Account not found")
 

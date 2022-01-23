@@ -7,7 +7,9 @@ from unittest.mock import Mock, patch
 
 @pytest.fixture
 def mock_settings():
-    return Settings(entrypoint="test.beancount", s3=S3(bucket=""), work_dir="/run")
+    return Settings(
+        entrypoint="test.beancount", s3=S3(bucket=""), work_dir="/run"
+    )
 
 
 @patch("pathlib.Path.mkdir")
@@ -21,7 +23,9 @@ def test_download(path_init, _, mock_settings):
 
     loader._download("test/key.file")
     path_init.assert_called_once_with("/run/test")
-    bucket.download_file.assert_called_once_with("test/key.file", "/run/test/key.file")
+    bucket.download_file.assert_called_once_with(
+        "test/key.file", "/run/test/key.file"
+    )
 
 
 @patch("pathlib.Path.mkdir")
@@ -40,4 +44,6 @@ def test_load(path_init, _, mock_settings):
     loader.load()
     path_init.assert_any_call("/run")
     bucket.objects.all.assert_called_once()
-    bucket.download_file.assert_called_once_with("test/key.file", "/run/test/key.file")
+    bucket.download_file.assert_called_once_with(
+        "test/key.file", "/run/test/key.file"
+    )

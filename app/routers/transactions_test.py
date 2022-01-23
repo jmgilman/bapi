@@ -1,7 +1,6 @@
 from functools import lru_cache
 from ..dependencies import BeanFile, get_beanfile
 from ..main import app
-from fastapi import encoders
 from fastapi.testclient import TestClient
 
 
