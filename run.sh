@@ -1,7 +1,10 @@
 #!/bin/bash
 
 docker build -t bapi .
-docker run -e BAPI_ENTRYPOINT \
+docker run --name "BAPI" \
+           -e BAPI_ENTRYPOINT \
+           -e BAPI_AUTH \
+           -e BAPI_STORAGE \
            -e BAPI_S3__BUCKET \
            -e AWS_ACCESS_KEY_ID \
            -e AWS_SECRET_ACCESS_KEY \
