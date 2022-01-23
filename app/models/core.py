@@ -1,7 +1,7 @@
 from __future__ import annotations
 import datetime
 
-from .data import Amount
+from .data import Amount, Currency
 from .directives import Transaction
 from pydantic import BaseModel
 from typing import Any, Dict, List, Optional
@@ -65,5 +65,5 @@ class Account(BaseModel):
     name: str
     open: datetime.date
     close: Optional[datetime.date]
-    balances: Optional[Dict[str, Amount]]
+    balances: Optional[Dict[Currency, Amount]]
     transactions: List[Transaction] = []

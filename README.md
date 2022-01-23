@@ -1,5 +1,11 @@
 # Beancount API (bapi)
 
+<p align="center">
+    <a href="https://github.com/jmgilman/bapi/actions/workflows/ci.yml">
+        <img src="https://github.com/jmgilman/bapi/actions/workflows/ci.yml/badge.svg"/>
+    </a>
+</p>
+
 > An HTTP API for serving up data contained within a Beancount ledger file.
 
 The Beancount API is an HTTP API which provides programmatic access to data that
@@ -24,7 +30,7 @@ It can then be queried:
 curl http://localhost:8080/transaction
 ```
 
-By default the API will look for the primary beancount file at `/run/beancount/main.beancount`. The directory it searches can be controlled by setting the `BAPI_WORKDIR` environment variable and the filename can be controlled by setting the `BAPI_ENTRYPOINT` environment variable.
+By default the API will look for the primary beancount file at `/run/bean/main.beancount`. The directory it searches can be controlled by setting the `BAPI_WORKDIR` environment variable and the filename can be controlled by setting the `BAPI_ENTRYPOINT` environment variable.
 
 ## Storage
 

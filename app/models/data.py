@@ -14,7 +14,7 @@ Meta = Dict[str, Any]
 
 class Amount(BaseModel):
     number: Optional[Decimal]
-    currency: Currency
+    currency: Optional[Currency]
 
 
 class Cost(BaseModel):
