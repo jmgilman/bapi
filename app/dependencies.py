@@ -64,7 +64,10 @@ class BeanFile:
                 name=real_account.account,
                 open=open,
                 close=close,
-                balance=to_data_model(real_account.balance),
+                balance=[
+                    to_data_model(position)
+                    for position in real_account.balance
+                ],
                 transactions=txns,
             )
 

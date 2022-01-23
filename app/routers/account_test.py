@@ -87,11 +87,9 @@ def test_account():
     assert response.json()["name"] == "Assets:US:Babble:Vacation"
     assert response.json()["open"] == "2020-01-01"
     assert response.json()["close"] is None
-    assert response.json()["balance"] == {
-        "positions": [
-            {"units": {"number": -2, "currency": "VACHR"}, "cost": None}
-        ]
-    }
+    assert response.json()["balance"] == [
+        {"units": {"number": -2, "currency": "VACHR"}, "cost": None}
+    ]
     assert len(response.json()["transactions"]) == 56
 
     response = client.get("/account/Assets:US:Babble:Vacations")
