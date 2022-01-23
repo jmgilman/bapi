@@ -49,12 +49,6 @@ class BeanFile:
 
         realized = realization.realize(self.raw_directives)
         for real_account in realization.iter_children(realized, True):
-            balances = {}
-            for currency in real_account.balance.currencies():
-                balances[currency] = to_data_model(
-                    real_account.balance.get_currency_units(currency)
-                )
-
             txns = []
             open = None
             close = None
@@ -70,7 +64,7 @@ class BeanFile:
                 name=real_account.account,
                 open=open,
                 close=close,
-                balances=balances,
+                balance=to_data_model(real_account.balance),
                 transactions=txns,
             )
 
