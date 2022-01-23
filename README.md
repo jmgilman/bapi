@@ -4,14 +4,14 @@
     <a href="https://github.com/jmgilman/bapi/actions/workflows/ci.yml">
         <img src="https://github.com/jmgilman/bapi/actions/workflows/ci.yml/badge.svg"/>
     </a>
+    <a href="https://jmgilman.github.io/bapi/">
+        <img src="https://img.shields.io/badge/docs-passing-brightgreen"/>
+    </a>
 </p>
 
 > An HTTP API for serving up data contained within a Beancount ledger file.
 
-The Beancount API is an HTTP API which provides programmatic access to data that
-is derived from one or more Beancount ledger files. It's built using
-[FastAPI](https://fastapi.tiangolo.com/) and therefore provides a full Swagger
-UI for interacting with the endpoints at `/docs`.
+The Beancount API is an HTTP API built using [FastAPI](https://fastapi.tiangolo.com/) and provides programmatic access to data that is derived from Beancount ledger files. See the [docs](https://jmgilman.github.io/bapi/) for more details.
 
 ## Usage
 
