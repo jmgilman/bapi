@@ -87,8 +87,10 @@ def test_account():
     assert response.json()["name"] == "Assets:US:Babble:Vacation"
     assert response.json()["open"] == "2020-01-01"
     assert response.json()["close"] is None
-    assert response.json()["balances"] == {
-        "VACHR": {"number": -2, "currency": "VACHR"}
+    assert response.json()["balance"] == {
+        "positions": [
+            {"units": {"number": -2, "currency": "VACHR"}, "cost": None}
+        ]
     }
     assert len(response.json()["transactions"]) == 56
 
