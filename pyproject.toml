@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bapi"
-version = "0.0.1"
+version = "0.1.0"
 description = "The Beancount API (bapi) provides an HTTP API for interacting with a Beancount ledger file"
 authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
 

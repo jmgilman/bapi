@@ -6,7 +6,7 @@ from .routers import account, balance, directive, transactions
 from .settings import Auth, bean_file, Storage, settings
 
 title = "Beancount API"
-version = "0.0.1"
+version = "0.1.0"
 contact = {"name": "Joshua Gilman", "email": "joshuagilman@gmail.com"}
 license_info = {"name": "MIT", "url": "https://opensource.org/licenses/MIT"}
 description = """
