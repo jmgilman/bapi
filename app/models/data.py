@@ -1,9 +1,9 @@
 import datetime
 
-from beancount.core import data
+from beancount.core import data, inventory, position
 from decimal import Decimal
 from pydantic import BaseModel
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 Account = str
 Booking = data.Booking
@@ -40,6 +40,15 @@ class Posting(BaseModel):
     price: Optional[Amount]
     flag: Optional[str]
     meta: Optional[Dict[str, Any]]
+
+
+class Position(BaseModel):
+    units: Amount
+    cost: Optional[Cost]
+
+
+class Inventory(BaseModel):
+    positions: List[Position]
 
 
 class DataNotFound(Exception):
@@ -89,6 +98,14 @@ def to_model(
             flag=object.flag,
             meta=object.meta,
         )
+    elif isinstance(object, position.Position):
+        return Position(
+            units=to_model(object.units), cost=to_model(object.cost)
+        )
+    elif isinstance(object, inventory.Inventory):
+        return Inventory(
+            positions=[to_model(position) for position in object],
+        )
     elif object is None:
         return None
     else:
@@ -132,6 +149,14 @@ def from_model(
             price=from_model(object.price),
             flag=object.flag,
             meta=object.meta,
+        )
+    elif isinstance(object, Position):
+        return position.Position(
+            units=from_model(object.units), cost=from_model(object.cost)
+        )
+    elif isinstance(object, Inventory):
+        return inventory.Inventory(
+            positions=[from_model(position) for position in object.positions]
         )
     elif object is None:
         return None

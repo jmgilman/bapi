@@ -2,6 +2,8 @@ import inspect
 import pytest
 
 from beancount.core.data import Amount, Cost, CostSpec, Posting
+from beancount.core.inventory import Inventory
+from beancount.core.position import Position
 from datetime import date
 
 from .data import from_model, to_model, DataNotFound
@@ -40,6 +42,22 @@ def mock_data():
             meta={},
         )
     )
+    data.append(
+        Position(
+            units=Amount(Decimal(1234.00), "USD"),
+            cost=None,
+        )
+    )
+    data.append(
+        Inventory(
+            positions=[
+                Position(
+                    units=Amount(Decimal(4321.00), "USD"),
+                    cost=None,
+                )
+            ]
+        )
+    )
 
     return data
 
@@ -54,6 +72,17 @@ def assert_is_equal(object1, object2):
 
 def test_to_from_model(mock_data):
     for data in mock_data:
+        # Inventory has a special test case
+        if isinstance(data, Inventory):
+            model = to_model(data)
+            for i, position in enumerate(model.positions):
+                assert_is_equal(position, list(data)[i])
+            model = from_model(model)
+            for i, position in enumerate(model):
+                assert position == list(data)[i]
+
+            continue
+
         model = to_model(data)
         assert_is_equal(model, data)
         model = from_model(model)
