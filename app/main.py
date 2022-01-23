@@ -2,7 +2,7 @@ from .dependencies import authenticated
 from fastapi import FastAPI, Depends
 from .internal.s3 import S3Loader
 from os.path import exists
-from .routers import account, balance, directive, transactions
+from .routers import account, balance, directive, query, transactions
 from .settings import Auth, bean_file, Storage, settings
 
 title = "Beancount API"
@@ -38,6 +38,7 @@ else:
 app.include_router(account.router)
 app.include_router(balance.router)
 app.include_router(directive.router)
+app.include_router(query.router)
 app.include_router(transactions.router)
 
 
