@@ -19,9 +19,9 @@ The quickest way to deploy the API is via a container:
 
 ```shell
 docker run \
-    -v ledger.beancount:/run/bean/main.beancount \
+    -v $(pwd)/testing/static.beancount:/run/beancount/main.beancount \
     -p 8080:8080 \
-    https://ghcr.io/jmgilman/bapi
+    ghcr.io/jmgilman/bapi
 ```
 
 It can then be queried:
@@ -30,7 +30,7 @@ It can then be queried:
 curl http://localhost:8080/transaction
 ```
 
-By default the API will look for the primary beancount file at `/run/bean/main.beancount`. The directory it searches can be controlled by setting the `BAPI_WORKDIR` environment variable and the filename can be controlled by setting the `BAPI_ENTRYPOINT` environment variable.
+By default the API will look for the primary beancount file at `/run/beancount/main.beancount`. The directory it searches can be controlled by setting the `BAPI_WORKDIR` environment variable and the filename can be controlled by setting the `BAPI_ENTRYPOINT` environment variable.
 
 ## Storage
 
