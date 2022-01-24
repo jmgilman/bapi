@@ -11,14 +11,12 @@ from functools import lru_cache
 from .models.core import (
     Account,
     BeanFileError,
-    QueryColumn,
-    QueryError,
-    QueryResult,
 )
 from .models.directives import Directives
 from .models.data import Supported as SupportedData
 from .models.data import to_model as to_data_model
 from .models.directives import to_model as to_directive_model
+from .models.query import QueryColumn, QueryError, QueryResult
 from .settings import bean_file, settings
 from typing import Any, Dict, List
 

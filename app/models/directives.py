@@ -1,7 +1,8 @@
 import datetime
 import itertools
 
-from beancount.core import data
+from beancount.core import amount, data
+from .custom import CustomEntry, CustomType, CustomTypeMap
 from .data import Account, Amount, Booking, Currency, Flag, Posting
 from .data import to_model as to_data_model
 from .data import from_model as from_data_model
@@ -15,7 +16,7 @@ class BaseDirective(BaseModel):
     """Contains common attributes on all directives."""
 
     date: datetime.date
-    meta: Dict[str, Any]
+    meta: Optional[Dict[str, Any]]
 
 
 class Open(BaseDirective):
@@ -87,7 +88,7 @@ class Document(BaseDirective):
 
 class Custom(BaseDirective):
     type: str
-    values: List[Any]
+    values: List[CustomEntry]
 
 
 Directive = Union[
@@ -262,11 +263,28 @@ def to_model(directive: data.Directive) -> Directive:
             links=directive.links,
         )
     elif isinstance(directive, data.Custom):
+        values = []
+        for value in directive.values:
+            if value[1] in CustomTypeMap:
+                values.append(
+                    CustomEntry(type=CustomTypeMap[value[1]], value=value[0])
+                )
+            elif value[1] == amount.Amount:
+                values.append(
+                    CustomEntry(
+                        type=CustomTypeMap[Amount],
+                        value=to_data_model(value[0]),
+                    )
+                )
+            else:
+                raise Exception(
+                    f"Custom type has unsupported type: {str(value[1])}"
+                )
         return Custom(
             date=directive.date,
             meta=filter_meta(directive.meta),
             type=directive.type,
-            values=directive.values,
+            values=values,
         )
     elif directive is None:
         return None
@@ -377,11 +395,18 @@ def from_model(directive: Directive) -> data.Directive:
             links=directive.links,
         )
     elif isinstance(directive, Custom):
+        values = []
+        reverse_map = {v: k for k, v in CustomTypeMap.items()}
+        for value in directive.values:
+            if value.type == CustomType.amount:
+                values.append((from_data_model(value.value), amount.Amount))
+            else:
+                values.append((value.value, reverse_map[value.type]))
         return data.Custom(
             date=directive.date,
             meta=directive.meta,
             type=directive.type,
-            values=directive.values,
+            values=values,
         )
     elif directive is None:
         return None
