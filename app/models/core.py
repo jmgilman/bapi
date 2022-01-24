@@ -1,7 +1,7 @@
 from __future__ import annotations
 import datetime
 
-from .data import Amount, Currency
+from .data import Inventory
 from .directives import Transaction
 from pydantic import BaseModel
 from typing import Any, Dict, List, Optional
@@ -65,5 +65,23 @@ class Account(BaseModel):
     name: str
     open: datetime.date
     close: Optional[datetime.date]
-    balances: Optional[Dict[Currency, Amount]]
+    balance: Optional[Inventory]
     transactions: List[Transaction] = []
+
+
+class QueryColumn(BaseModel):
+    name: str
+    type: str
+
+
+QueryHeader = List[QueryColumn]
+QueryRow = Dict[str, Any]
+
+
+class QueryResult(BaseModel):
+    header: QueryHeader
+    rows: List[QueryRow]
+
+
+class QueryError(Exception):
+    pass

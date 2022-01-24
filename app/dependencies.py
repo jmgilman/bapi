@@ -2,11 +2,21 @@ import jwt
 
 from beancount import loader
 from beancount.core import data, realization
+from beancount.query import query
+from beancount.query.query_compile import CompilationError
+from beancount.query.query_parser import ParseError
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer
 from functools import lru_cache
-from .models.core import Account, BeanFileError
+from .models.core import (
+    Account,
+    BeanFileError,
+    QueryColumn,
+    QueryError,
+    QueryResult,
+)
 from .models.directives import Directives
+from .models.data import Supported as SupportedData
 from .models.data import to_model as to_data_model
 from .models.directives import to_model as to_directive_model
 from .settings import bean_file, settings
@@ -49,12 +59,6 @@ class BeanFile:
 
         realized = realization.realize(self.raw_directives)
         for real_account in realization.iter_children(realized, True):
-            balances = {}
-            for currency in real_account.balance.currencies():
-                balances[currency] = to_data_model(
-                    real_account.balance.get_currency_units(currency)
-                )
-
             txns = []
             open = None
             close = None
@@ -70,9 +74,49 @@ class BeanFile:
                 name=real_account.account,
                 open=open,
                 close=close,
-                balances=balances,
+                balance=[
+                    to_data_model(position)
+                    for position in real_account.balance
+                ],
                 transactions=txns,
             )
+
+    def query(self, query_str: str):
+        """Queries the beancount data using the given BQL query string.
+
+        Args:
+            query_str: The BQL query string to use
+
+        Returns:
+            A QueryResult containing the results of the query
+
+        Raises:
+            QueryError: Raised when a query fails to compile or execute
+        """
+        try:
+            result = query.run_query(
+                self.raw_directives, self.options, query_str
+            )
+        except (CompilationError, ParseError) as e:
+            raise QueryError(str(e))
+
+        columns = []
+        for column in result[0]:
+            columns.append(
+                QueryColumn(name=column[0], type=column[1].__name__)
+            )
+
+        rows = []
+        for row in result[1]:
+            new_row = {}
+            for field in row._fields:
+                value = getattr(row, field)
+                if type(value) in SupportedData:
+                    value = to_data_model(value)
+                new_row[field] = value
+            rows.append(new_row)
+
+        return QueryResult(header=columns, rows=rows)
 
 
 def _load(filepath: str):

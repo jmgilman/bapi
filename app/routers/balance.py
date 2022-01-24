@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Path
 from ..dependencies import get_beanfile
-from ..models.data import Amount
+from ..models.data import Inventory
 from typing import Dict
 
 router = APIRouter(prefix="/balance", tags=["balances"])
@@ -8,12 +8,9 @@ router = APIRouter(prefix="/balance", tags=["balances"])
 
 @router.get(
     "/",
-    response_model=Dict[str, Dict[str, Amount]],
+    response_model=Dict[str, Inventory],
     summary="Fetch all balances from all accounts",
-    response_description=(
-        "A dictionary of account names and their balances, grouped by "
-        "currencies"
-    ),
+    response_description="A dictionary of account names and their balances",
 )
 def balance(
     beanfile=Depends(get_beanfile),
@@ -21,29 +18,22 @@ def balance(
     """
     Fetch the balances of all applicable accounts.
 
-    Accounts may have positions in multiple currencies and it is therefore not
-    possible to represent a balance with a single result. As such, results from
-    this API call contain a dictionary which has the currency of the balance as
-    the key and the associated `Amount` as its value.
-
-    Accounts which have a zero balance in a given currency will be excluded
-    from the dictionary. If an account has a zero balance across all currencies
-    then an empty dictionary is returned.
+    Balances are represented as an Inventory object which contains one or more
+    Positions. Refer to the Beancount documentation for more information about
+    how inventories work.
     """
     response = {}
     for name, account in beanfile.accounts.items():
-        response[name] = account.balances
+        response[name] = account.balance
 
     return response
 
 
 @router.get(
     "/{account_name}",
-    response_model=Dict[str, Amount],
+    response_model=Inventory,
     summary="Fetch the balances of an account",
-    response_description=(
-        "A dictionary of currency balances and their " "respective `Amount`'s"
-    ),
+    response_description="A Inventory object representing the account balance",
 )
 def account(
     account_name: str = Path(
@@ -54,16 +44,11 @@ def account(
     """
     Fetch the balance of an account.
 
-    Accounts may have positions in multiple currencies and it is therefore not
-    possible to represent a balance with a single result. As such, results from
-    this API call contain a dictionary which has the currency of the balance as
-    the key and the associated `Amount` as its value.
-
-    Accounts which have a zero balance in a given currency will be excluded
-    from the dictionary. If an account has a zero balance across all currencies
-    then an empty dictionary is returned.
+    Balances are represented as an Inventory object which contains one or more
+    Positions. Refer to the Beancount documentation for more information about
+    how inventories work.
     """
     if account_name not in beanfile.accounts:
         raise HTTPException(status_code=404, detail="Account not found")
 
-    return beanfile.accounts[account_name].balances
+    return beanfile.accounts[account_name].balance
