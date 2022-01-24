@@ -1,13 +1,7 @@
-import datetime
-
 from beancount.parser import printer
-from beancount.core.amount import Amount
-from dateutil import parser
-from decimal import Decimal, getcontext
 from fastapi import APIRouter, Depends
 from fastapi.responses import PlainTextResponse
 from ..dependencies import get_beanfile
-from ..models.custom import CustomType
 from ..models.directives import (
     from_model,
     Directive,
@@ -314,23 +308,4 @@ def directive_custom(
 )
 def directive_custom_generate(custom: Custom):
     custom = from_model(custom)
-    for i, (value, type) in enumerate(custom.values):
-        if type == CustomType.amount:
-            custom.values[i] = (
-                Amount(
-                    number=Decimal(value["number"]),
-                    currency=str(value["currency"]),
-                ),
-                Amount,
-            )
-        elif type == CustomType.bool:
-            custom.values[i] = (bool(value), bool)
-        elif type == CustomType.date:
-            custom.values[i] = (parser.parse(value).date(), datetime.date)
-        elif type == CustomType.decimal:
-            getcontext().prec = 2
-            custom.values[i] == (Decimal(value), Decimal)
-        elif type == CustomType.str:
-            custom.values[i] == (str(value), str)
-
     return printer.format_entry(custom)
