@@ -7,6 +7,7 @@ from decimal import Decimal, getcontext
 from fastapi import APIRouter, Depends
 from fastapi.responses import PlainTextResponse
 from ..dependencies import get_beanfile
+from ..models.custom import CustomType
 from ..models.directives import (
     from_model,
     Directive,
@@ -14,7 +15,6 @@ from ..models.directives import (
     Close,
     Commodity,
     Custom,
-    CustomType,
     Document,
     Event,
     Note,

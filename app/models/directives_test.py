@@ -18,8 +18,11 @@ from beancount.core.data import (
     Amount,
     Posting,
 )
+from .data import Amount as AmountModel
 from datetime import date
 from decimal import Decimal
+
+from app.models.custom import CustomEntry, CustomType
 from .directives import from_model, to_model, DirectiveNotFound
 
 
@@ -128,14 +131,6 @@ def mock_directives():
             links=None,
         )
     )
-    directives.append(
-        Custom(
-            date=date.today(),
-            meta={},
-            type="custom",
-            values=[],
-        )
-    )
 
     return directives
 
@@ -177,3 +172,36 @@ def test_to_from_model(mock_directives):
 
     with pytest.raises(DirectiveNotFound):
         from_model(mock_directives[0])
+
+
+def test_to_from_custom():
+    mock_custom = Custom(
+        date=date.today(),
+        meta={},
+        type="custom",
+        values=[
+            ("test string", str),
+            (True, bool),
+            (date.today(), date),
+            (Amount(number=Decimal(1234.56), currency="USD"), Amount),
+            (Decimal(65.4321), Decimal),
+        ],
+    )
+
+    expected_values = [
+        CustomEntry(type=CustomType.str, value="test string"),
+        CustomEntry(type=CustomType.bool, value=True),
+        CustomEntry(type=CustomType.date, value=date.today()),
+        CustomEntry(
+            type=CustomType.amount,
+            value=AmountModel(number=Decimal(1234.56), currency="USD"),
+        ),
+        CustomEntry(type=CustomType.decimal, value=Decimal(65.4321)),
+    ]
+    model = to_model(mock_custom)
+    assert model.date == mock_custom.date
+    assert model.type == mock_custom.type
+    assert model.values == expected_values
+
+    model = from_model(model)
+    assert model == mock_custom

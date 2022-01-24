@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from ..dependencies import get_beanfile
-from ..models.core import QueryError, QueryResult
+from ..models.query import QueryError, QueryResult
 
 router = APIRouter(prefix="/query", tags=["query"])
 

@@ -330,14 +330,14 @@ def test_directive_custom_generate():
             "date": "2022-01-01",
             "type": "Test",
             "values": [
-                ["2022-01-01", "date"],
-                [
-                    {
-                        "number": "1234.56",
+                {"type": "date", "value": "2022-01-01"},
+                {
+                    "type": "amount",
+                    "value": {
+                        "number": 1234.56,
                         "currency": "USD",
                     },
-                    "amount",
-                ],
+                },
             ],
         },
     )
