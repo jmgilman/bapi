@@ -1,4 +1,5 @@
 import datetime
+from enum import Enum
 import itertools
 
 from beancount.core import data
@@ -8,14 +9,14 @@ from .data import from_model as from_data_model
 from decimal import Decimal
 from fastapi import encoders
 from pydantic import BaseModel
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 
 class BaseDirective(BaseModel):
     """Contains common attributes on all directives."""
 
     date: datetime.date
-    meta: Dict[str, Any]
+    meta: Optional[Dict[str, Any]]
 
 
 class Open(BaseDirective):
@@ -85,9 +86,17 @@ class Document(BaseDirective):
     links: Optional[Set]
 
 
+class CustomType(Enum):
+    amount = "amount"
+    bool = "bool"
+    date = "date"
+    decimal = "decimal"
+    str = "str"
+
+
 class Custom(BaseDirective):
     type: str
-    values: List[Any]
+    values: List[Tuple[Any, CustomType]]
 
 
 Directive = Union[

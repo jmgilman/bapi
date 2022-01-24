@@ -44,7 +44,7 @@ class CostSpec(BaseModel):
 
 class Posting(BaseModel):
     account: Account
-    units: Amount
+    units: Optional[Amount]
     cost: Optional[Union[Cost, CostSpec]]
     price: Optional[Amount]
     flag: Optional[str]
