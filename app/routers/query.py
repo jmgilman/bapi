@@ -12,11 +12,11 @@ router = APIRouter(prefix="/query", tags=["query"])
     response_description="A QueryResult containing results of the query",
 )
 def query(
-    query: str = Query("", description="The BQL query string"),
+    bql: str = Query("", description="The BQL query string"),
     beanfile=Depends(get_beanfile),
 ):
     """Queries the underlying beancount data using a BQL query string."""
     try:
-        return beanfile.query(query)
+        return beanfile.query(bql)
     except QueryError as e:
         raise HTTPException(status_code=400, detail=str(e))
