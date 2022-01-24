@@ -32,6 +32,16 @@ curl http://localhost:8080/transaction
 
 By default the API will look for the primary beancount file at `/run/beancount/main.beancount`. The directory it searches can be controlled by setting the `BAPI_WORKDIR` environment variable and the filename can be controlled by setting the `BAPI_ENTRYPOINT` environment variable.
 
+## Endpoints
+
+| Endpoint     | Description
+| ------------ | --------------------------------------------------------------------------------- |
+| /account     | Fetch list of accounts or individual account information                          |
+| /balance     | Fetch all account balances or individual account balances                         |
+| /directive   | Fetch all directives by type or generate Beancount syntax for each directive type |
+| /query       | Fetch the results of querying the Beancount data using a BQL query                |
+| /transaction | Fetch and/or filter all transactions                                              |
+
 ## Storage
 
 The API can be configured to pull files down from an Amazon S3 bucket into the
@@ -42,9 +52,9 @@ working directory before starting. The following environment variables must be s
 
 In addition to the above, the normal AWS environment variables must be set:
 
-* **$AWS_ACCESS_KEY_ID**
+* **AWS_ACCESS_KEY_ID**
 * **AWS_SECRET_ACCESS_KEY**
-* **$AWS_DEFAULT_REGION**
+* **AWS_DEFAULT_REGION**
 
 If configured correctly, all files in the specified S3 bucket will be downlaoded to the working directory before the server starts. This allows storing Beancount files remotely and only pulling them down when the container starts.
 
