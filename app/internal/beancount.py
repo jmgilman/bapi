@@ -1,3 +1,4 @@
+from beancount import loader
 from beancount.core import data, realization
 from beancount.query import query
 from beancount.query.query_compile import CompilationError
@@ -89,3 +90,15 @@ class QueryError(Exception):
     """Raised when a BQL query fails to compile."""
 
     pass
+
+
+def from_file(path: str) -> BeancountFile:
+    """Creates a new `BeancountFile` instance using the file at the given path.
+
+    Args:
+        path: The full path to the beancount ledger file.
+
+    Returns:
+        A new instance of `BeancountFile` with the loaded ledger contents.
+    """
+    return BeancountFile(*loader.load_file(path))

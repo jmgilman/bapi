@@ -3,9 +3,10 @@ import json
 import os
 import re
 
-from app.dependencies import get_beanfile, _load
+from app.dependencies import get_beanfile
 from app.internal.beancount import BeancountFile
 from app.main import app
+from beancount import loader
 from functools import lru_cache
 
 
@@ -56,7 +57,7 @@ def load_realize_json() -> str:
 @lru_cache
 def override():
     """Provides an override for forcing the API to load the test file."""
-    return BeancountFile(*_load("testing/static.beancount"))
+    return BeancountFile(*loader.load_file("testing/static.beancount"))
 
 
 def setup():

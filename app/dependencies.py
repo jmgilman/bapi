@@ -1,15 +1,13 @@
 import enum
 import jwt
 
-from beancount import loader
-from beancount.core import data, realization
+from beancount.core import realization
 from bdantic import models
 from fastapi import Depends, HTTPException, Path, Query
 from fastapi.security import HTTPBearer
 from .internal.beancount import BeancountFile
-from functools import lru_cache
-from .settings import bean_file, settings
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
+from .settings import settings
+from typing import Callable, Optional, TypeVar
 
 T = TypeVar("T", bound="models.base.BaseList")
 
@@ -60,15 +58,13 @@ def authenticated(token=Depends(bearer)):
     return payload
 
 
-@lru_cache()
 def get_beanfile() -> BeancountFile:
-    """A cached dependency to ensure a BeancountFile is only parsed once.
+    """A dependency for returning the loaded `BeancountFile` instance.
 
     Returns:
-        A new instance of `BeancountFile` initialized with the contents of the
-        ledger file configured via settings.
+        The loaded `BeancountFile` instance.
     """
-    return BeancountFile(*_load(bean_file))
+    return settings.beanfile
 
 
 def get_directives(
@@ -134,15 +130,3 @@ def get_real_account(
         raise HTTPException(status_code=404, detail="Account not found")
 
     return real_acct
-
-
-def _load(filepath: str) -> Tuple[List[data.Directive], List, Dict[str, Any]]:
-    """Passes the given file to the beancount loader and returns the results.
-
-    Args:
-        filepath: The path to a beancount file.
-
-    Returns:
-        The resulting entries, errors, and options from the loader.
-    """
-    return loader.load_file(filepath)
