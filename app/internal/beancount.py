@@ -8,6 +8,15 @@ from typing import Any, Dict, List, Type
 
 @dataclass
 class BeancountFile:
+    """Provides a representation of a parsed beancount file.
+
+    Attributes:
+        entries: The parsed entries.
+        errors: Any errors generated during parsing.
+        options: The parsed options.
+        root: The result of realizing the parsed entries.
+    """
+
     entries: List[data.Directive]
     errors: List[Any]
     options: Dict[str, Any]
@@ -25,15 +34,51 @@ class BeancountFile:
         self.root = realization.realize(entries)
 
     def account(self, name: str) -> realization.RealAccount:
+        """Fetch the given account from the realization.
+
+        Args:
+            name: The account name to fetch.
+
+        Returns:
+            A `RealAccount` instance of the account or None if not found.
+        """
         return realization.get(self.root, name)
 
     def accounts(self) -> List[str]:
+        """Fetches all account names found in the ledger.
+
+        This method works by filtering all held directives to find the Open
+        directives and then extracts the account name from each one. Any
+        account which exists outside of an Open directive will not be returned.
+
+        Returns:
+            A list of account names.
+        """
         return [d.account for d in self.filter(data.Open)]
 
     def filter(self, typ: Type[data.Directive]):
+        """Extracts all directives of the given type.
+
+        Args:
+            typ: The type of directive to extract from the directives.
+
+        Returns:
+            A list of all of the requested directive type.
+        """
         return [d for d in self.entries if isinstance(d, typ)]
 
     def query(self, query_str: str):
+        """Queries the ledger with the given query string.
+
+        Args:
+            query_str: The BQL query string to use.
+
+        Raises:
+            QueryError: If the query fails to compile.
+
+        Returns:
+            The result as a tuple of columns and rows.
+        """
         try:
             return query.run_query(self.entries, self.options, query_str)
         except (CompilationError, ParseError) as e:
@@ -41,4 +86,6 @@ class BeancountFile:
 
 
 class QueryError(Exception):
+    """Raised when a BQL query fails to compile."""
+
     pass

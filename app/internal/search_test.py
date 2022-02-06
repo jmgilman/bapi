@@ -2,7 +2,7 @@ import pytest
 
 from bdantic import models
 from datetime import date
-from .search import FullTextSearch, txn_has_account
+from .search import FullTextSearch
 
 
 @pytest.fixture
@@ -91,27 +91,3 @@ def test_tokenize(query, expected):
 
     tokens = fts._tokenize(query)
     assert tokens == expected
-
-
-def test_txn_has_account():
-    txn = models.Transaction(
-        date=date.today(),
-        meta={},
-        flag="*",
-        payee="John",
-        narration="For groceries",
-        postings=[
-            models.Posting(
-                account="Assets:Bank:Groceries",
-                units=models.Amount(number=-50.00, currency="USD"),
-            ),
-            models.Posting(
-                account="Expenses:Groceries",
-                units=models.Amount(number=50.00, currency="USD"),
-            ),
-        ],
-    )
-
-    assert txn_has_account(txn, "Assets:Bank:Groceries") is True
-    assert txn_has_account(txn, "Expenses:Groceries") is True
-    assert txn_has_account(txn, "Assets:Bank:Trip") is False

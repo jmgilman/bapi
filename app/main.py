@@ -40,7 +40,6 @@ else:
 app.include_router(account.router)
 app.include_router(directive.router)
 app.include_router(query.router)
-# app.include_router(transactions.router)
 
 
 @app.on_event("startup")
@@ -56,7 +55,8 @@ def startup():
 
 
 @app.exception_handler(LexerError)
-async def unicorn_exception_handler(request: Request, exc: LexerError):
+async def jmespath_exception_handler(_: Request, exc: LexerError):
+    """Provides an exception handler for catching JMESPath exceptions."""
     return JSONResponse(
         status_code=422,
         content={

@@ -46,8 +46,8 @@ def directive(
 @router.post(
     "/syntax",
     response_class=PlainTextResponse,
-    summary="Generate syntax for the given directive",
-    response_description="The Beancount syntax for the given directive",
+    summary="Generate syntax for the given directive.",
+    response_description="The Beancount syntax for the given directive.",
 )
 def directive_syntax(
     data: ModelDirective,

@@ -13,12 +13,11 @@ router = APIRouter(prefix="/account", tags=["accounts"])
     "/",
     response_model=List[str],
     summary="Fetch a list of all account names",
-    response_description="A list of all account names",
+    response_description="A list of all account names.",
     response_model_exclude_none=True,
     response_model_by_alias=True,
 )
 def accounts(beanfile=Depends(get_beanfile)) -> List[str]:
-    """Fetches and returns a list of all accounts in the ledger file."""
     return list(beanfile.accounts())
 
 
@@ -26,14 +25,13 @@ def accounts(beanfile=Depends(get_beanfile)) -> List[str]:
     "/{account_name}",
     response_model=Account,
     summary="Fetch the details of an account.",
-    response_description="An `Account` containing the given account details",
+    response_description="An `Account` containing the given account details.",
     response_model_exclude_none=True,
     response_model_by_alias=True,
 )
 def account(
     real_acct: realization.RealAccount = Depends(get_real_account),
 ) -> Account:
-    """Fetches and returns various details about an account."""
     return RealAccount.parse(real_acct).to_account()
 
 
@@ -48,7 +46,6 @@ def account(
 def balance(
     real_acct: realization.RealAccount = Depends(get_real_account),
 ) -> Dict[str, Inventory]:
-    """Fetches and returns the balances of an account grouped by currencies."""
     return RealAccount.parse(real_acct).to_account().balance
 
 
@@ -63,8 +60,6 @@ def balance(
 def realize(
     real_acct: realization.RealAccount = Depends(get_real_account),
 ) -> RealAccount:
-    """Fetches the result of running beancount.core.realization.realize() on
-    the given account."""
     return RealAccount.parse(real_acct)
 
 
@@ -79,7 +74,6 @@ def realize(
 def transactions(
     real_acct: realization.RealAccount = Depends(get_real_account),
 ) -> List[Transaction]:
-    """Fetches all transactions associated with the given account."""
     txn_postings = cast(
         List[TxnPosting],
         RealAccount.parse(real_acct).txn_postings.filter(

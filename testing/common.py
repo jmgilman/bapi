@@ -10,12 +10,25 @@ from functools import lru_cache
 
 
 def fetch_account(account: str) -> str:
+    """Fetches the given account from the realization JSON dump.
+
+    Args:
+        account: The account name to fetch.
+
+    Returns:
+        The fetched account.
+    """
     js = load_realize_json()
     filter = "children." + ".children.".join(account.split(":"))
     return jmespath.search(filter, js)
 
 
 def load_static_json() -> str:
+    """Loads the static.beancount JSON dump.
+
+    Returns:
+        The JSON dump.
+    """
     with open("testing/static.json", "r") as f:
         j = f.read()
 
@@ -26,6 +39,11 @@ def load_static_json() -> str:
 
 
 def load_realize_json() -> str:
+    """Loads the static.beancount realization JSON dump.
+
+    Returns:
+        The JSON dump.
+    """
     with open("testing/realize.json", "r") as f:
         j = f.read()
 
@@ -37,8 +55,10 @@ def load_realize_json() -> str:
 
 @lru_cache
 def override():
+    """Provides an override for forcing the API to load the test file."""
     return BeancountFile(*_load("testing/static.beancount"))
 
 
 def setup():
+    """Overrides the get_beanfile dependency to use the test file."""
     app.dependency_overrides[get_beanfile] = override

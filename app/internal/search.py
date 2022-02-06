@@ -66,11 +66,3 @@ class FullTextSearch:
         tokens = [punc.sub("", token) for token in tokens]
 
         return tokens
-
-
-def txn_has_account(txn: data.Transaction, account: str):
-    for posting in txn.postings:
-        if posting.account == account:
-            return True
-
-    return False
