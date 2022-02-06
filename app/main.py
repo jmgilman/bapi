@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends, Request
 from fastapi.responses import JSONResponse
 from jmespath.exceptions import LexerError  # type: ignore
 from .routers import account, directive, query
-from .settings import settings
+from .internal.settings import Auth, settings
 
 app = FastAPI(
     title="Beancount API",
@@ -17,21 +17,24 @@ possible in responses in order to maximize integration with other platforms.
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
 )
 
-# Add routes
-app.include_router(account.router)
-app.include_router(directive.router)
-app.include_router(query.router)
-
 
 @app.on_event("startup")
 def startup():
     """Startup handler for configuring dependencies."""
+    # Validate settings
+    settings.validate()
+
     # Force caching on the beancount file
     settings.beanfile
 
     # Setup authentication
-    if settings.auth:
+    if settings.auth != Auth.none:
         app.router.dependencies.append(Depends(authenticated))
+
+    # Add routes
+    app.include_router(account.router)
+    app.include_router(directive.router)
+    app.include_router(query.router)
 
 
 @app.exception_handler(LexerError)

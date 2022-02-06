@@ -2,11 +2,12 @@ import os
 
 from enum import Enum
 from functools import cached_property
-from .internal.beancount import BeancountFile
-from .internal.storage import BaseStorage
-from .internal.providers.storage.local import LocalStorage
-from .internal.providers.storage.s3 import S3Config, S3Storage
-from pydantic import BaseSettings, BaseModel
+from .base import BaseAuth, BaseStorage
+from .beancount import BeancountFile
+from .auth.jwt import JWTAuth, JWTConfig
+from .storage.local import LocalStorage
+from .storage.s3 import S3Config, S3Storage
+from pydantic import BaseSettings
 from typing import Dict, Optional, Type
 
 
@@ -18,22 +19,6 @@ class Storage(str, Enum):
 class Auth(str, Enum):
     none = "none"
     jwt = "jwt"
-
-
-class JWT(BaseModel):
-    """Configuration class for configuring JWT authentication
-
-    Attributes:
-        algorithms: A comma separated list of approved algorithms to use
-        audience: The API audience
-        jwks: The URL to a JWKS endpoint for fetching keys
-        issuer: The token issuer
-    """
-
-    algorithms: str = "RS256"
-    audience: str = ""
-    jwks: str = ""
-    issuer: str = ""
 
 
 class Settings(BaseSettings):
@@ -52,8 +37,10 @@ class Settings(BaseSettings):
     work_dir: str = "/tmp/bean"
     storage: Storage = Storage.local
     auth: Auth = Auth.none
-    jwt: Optional[JWT] = None
+    jwt: Optional[JWTConfig] = None
     s3: Optional[S3Config] = None
+
+    _auth_providers: Dict[Auth, Type[BaseAuth]] = {Auth.jwt: JWTAuth}
 
     _storage_providers: Dict[Storage, Type[BaseStorage]] = {
         Storage.local: LocalStorage,
@@ -82,7 +69,6 @@ class Settings(BaseSettings):
         Returns:
             A new `BeancountFile` instance with the configured ledger file.
         """
-        print("LOADING!")
         return self._storage_providers[self.storage](self).load()
 
     def entry_path(self):
@@ -92,6 +78,21 @@ class Settings(BaseSettings):
             The path to the entrypoint beancount file.
         """
         return os.path.join(self.work_dir, self.entrypoint)
+
+    def get_auth(self) -> Optional[BaseAuth]:
+        """Returns the configured authentication provider, if any.
+
+        Returns:
+            The configured authenitcation provider or None.
+        """
+        return self._auth_providers[self.auth](self)
+
+    def validate(self):
+        """Validates this settings instance."""
+        if self.auth is not Auth.none:
+            self._auth_providers[self.auth].validate(self)
+
+        self._storage_providers[self.storage].validate(self)
 
 
 # Load settings

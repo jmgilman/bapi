@@ -1,5 +1,5 @@
-from ...beancount import BeancountFile, from_file
-from ...storage import BaseStorage
+from ..beancount import BeancountFile, from_file
+from ..base import BaseStorage
 
 
 class LocalStorage(BaseStorage):
@@ -7,3 +7,7 @@ class LocalStorage(BaseStorage):
 
     def load(self) -> BeancountFile:
         return from_file(self.settings.entry_path())
+
+    @classmethod
+    def validate(cls, _):
+        pass

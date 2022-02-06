@@ -1,12 +1,10 @@
 import enum
-import jwt
 
 from beancount.core import realization
 from bdantic import models
-from fastapi import Depends, HTTPException, Path, Query
-from fastapi.security import HTTPBearer
+from fastapi import Depends, HTTPException, Path, Query, Request
 from .internal.beancount import BeancountFile
-from .settings import settings
+from .internal.settings import settings
 from typing import Callable, Optional, TypeVar
 
 T = TypeVar("T", bound="models.base.BaseList")
@@ -29,37 +27,21 @@ class DirectiveType(str, enum.Enum):
     transaction = "transaction"
 
 
-bearer = HTTPBearer()
-
-
-def authenticated(token=Depends(bearer)):
-    """Dependency for validating requests that contain a JWT token.
+def authenticated(request: Request) -> None:
+    """Validates requests that require authentication.
 
     Raises:
-        HTTPException: If the JWT fails validation.
-
-    Returns:
-        The payload of any validated JWT.
+        HTTPException: If the configured authentication handler fails.
     """
-    client = jwt.PyJWKClient(settings.jwt.jwks)
-    signing_key = client.get_signing_key_from_jwt(token.credentials).key
+    auth = settings.get_auth()
+    assert auth is not None
 
-    try:
-        payload = jwt.decode(
-            token.credentials,
-            signing_key,
-            algorithms=settings.jwt.algorithms.split(","),
-            audience=settings.jwt.audience,
-            issuer=settings.jwt.issuer,
-        )
-    except jwt.exceptions.DecodeError as e:
-        raise HTTPException(status_code=403, detail=str(e))
-
-    return payload
+    if not auth.authenticate(request):
+        raise HTTPException(status_code=403)
 
 
 def get_beanfile() -> BeancountFile:
-    """A dependency for returning the loaded `BeancountFile` instance.
+    """Returns the loaded `BeancountFile` instance.
 
     Returns:
         The loaded `BeancountFile` instance.

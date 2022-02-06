@@ -1,11 +1,24 @@
 import boto3  # type: ignore
 import os
 
+from ..beancount import BeancountFile, from_file
 from pathlib import Path
-from ..settings import Settings
+from pydantic import BaseModel
+from ..base import BaseStorage, ValidationError
+from typing import Any
 
 
-class S3Loader:
+class S3Config(BaseModel):
+    """Configuration class for Amazon S3 support.
+
+    Attributes:
+        bucket: The S3 bucket name to download ledger files from
+    """
+
+    bucket: str = ""
+
+
+class S3Storage(BaseStorage):
     """Provides an interface for downloading Beancount ledger files from Amazon S3.
 
     This class expects the main ledger file as well as all supporting ledger
@@ -14,18 +27,27 @@ class S3Loader:
     will be downloaded to the working directory specified via the settings.
     """
 
-    def __init__(self, settings: Settings):
-        assert settings.s3 is not None
-        assert settings.s3.bucket is not None
+    bucket: Any = None
 
-        self.bucket = boto3.resource("s3").Bucket(settings.s3.bucket)
-        self.settings = settings
+    def load(self) -> BeancountFile:
+        assert self.settings.s3 is not None
+        if not self.bucket:
+            self.bucket = boto3.resource("s3").Bucket(self.settings.s3.bucket)
 
-    def load(self):
-        """Downloads all S3 bucket contents to the configured directory."""
         Path(self.settings.work_dir).mkdir(parents=True, exist_ok=True)
         for object in self.bucket.objects.all():
             self._download(object.key)
+
+        return from_file(self.settings.entry_path())
+
+    @staticmethod
+    def validate(settings):
+        if settings.s3 is None:
+            raise ValidationError("Must set environment variables for S3")
+        elif settings.s3.bucket is None:
+            raise ValidationError(
+                "Must set the S3 bucket environment variable"
+            )
 
     def _download(self, key: str):
         """Downloads the given object to the configured working directory.

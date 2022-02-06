@@ -13,11 +13,6 @@ def setup_module(_):
 
 
 @pytest.fixture
-def client() -> TestClient:
-    return TestClient(app)
-
-
-@pytest.fixture
 def syntax() -> Dict[str, Tuple[Dict, str]]:
     return {
         "open": (
@@ -138,26 +133,27 @@ def syntax() -> Dict[str, Tuple[Dict, str]]:
     }
 
 
-def test_directives(client: TestClient):
-    expected = c.load_static_json()
-    response = client.get("/directive")
-
-    assert response.json() == expected
-
-
-def test_directive(client: TestClient):
-    j = c.load_static_json()
-
-    for v in DirectiveType:
-        expected = jmespath.search(f"[?ty == '{v.value.capitalize()}']", j)
-        response = client.get(f"/directive/{v.value}")
+def test_directives():
+    with TestClient(app) as client:
+        expected = c.load_static_json()
+        response = client.get("/directive")
 
         assert response.json() == expected
 
 
-def test_directive_syntax(
-    client: TestClient, syntax: Dict[str, Tuple[Dict, str]]
-):
-    for v in syntax.values():
-        response = client.post("/directive/syntax", json=v[0])
-        assert response.text == v[1]
+def test_directive():
+    with TestClient(app) as client:
+        j = c.load_static_json()
+
+        for v in DirectiveType:
+            expected = jmespath.search(f"[?ty == '{v.value.capitalize()}']", j)
+            response = client.get(f"/directive/{v.value}")
+
+            assert response.json() == expected
+
+
+def test_directive_syntax(syntax: Dict[str, Tuple[Dict, str]]):
+    with TestClient(app) as client:
+        for v in syntax.values():
+            response = client.post("/directive/syntax", json=v[0])
+            assert response.text == v[1]
