@@ -4,6 +4,9 @@ from beancount.query import query
 from beancount.query.query_compile import CompilationError
 from beancount.query.query_parser import ParseError  # type: ignore
 from dataclasses import dataclass
+from fastapi.responses import JSONResponse
+from jmespath.exceptions import LexerError  # type: ignore
+from ..main import app
 from typing import Any, Dict, List, Type
 
 
@@ -102,3 +105,17 @@ def from_file(path: str) -> BeancountFile:
         A new instance of `BeancountFile` with the loaded ledger contents.
     """
     return BeancountFile(*loader.load_file(path))
+
+
+@app.exception_handler(LexerError)
+def jmespath_exception_handler(_, exc: LexerError):
+    """Provides an exception handler for catching JMESPath exceptions."""
+    return JSONResponse(
+        status_code=422,
+        content={
+            "message": f"Error in JMESPath filter expression: {exc.message}",
+            "expression": exc.expression,
+            "column": exc.lex_position,
+            "token": exc.token_value,
+        },
+    )
