@@ -49,6 +49,21 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "cloudpickle"]
 
 [[package]]
+name = "bdantic"
+version = "0.2.0"
+description = "A package for extending beancount with pydantic"
+category = "main"
+optional = false
+python-versions = ">=3.8,<4.0"
+
+[package.dependencies]
+beancount = ">=2.3.4,<3.0.0"
+beancount-stubs = ">=0.1.3,<0.2.0"
+jmespath = ">=0.10.0,<0.11.0"
+orjson = ">=3.6.6,<4.0.0"
+pydantic = ">=1.9.0,<2.0.0"
+
+[[package]]
 name = "beancount"
 version = "2.3.4"
 description = "Command-line Double-Entry Accounting"
@@ -67,6 +82,17 @@ pytest = "*"
 python-dateutil = "*"
 python-magic = "*"
 requests = "*"
+
+[[package]]
+name = "beancount-stubs"
+version = "0.1.3"
+description = "Stub files for the beancount package"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+beancount = ">=2.3.4"
 
 [[package]]
 name = "beautifulsoup4"
@@ -427,6 +453,14 @@ description = "Experimental type system extensions for programs checked with the
 category = "dev"
 optional = false
 python-versions = "*"
+
+[[package]]
+name = "orjson"
+version = "3.6.6"
+description = "Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy"
+category = "main"
+optional = false
+python-versions = ">=3.7"
 
 [[package]]
 name = "packaging"
@@ -821,7 +855,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "390a39b462c0c9639c0f1d88d4a42118248b3a45dc499b1724938eafbaff9096"
+content-hash = "a168d4a156b4529ad17efa851d86532d1696f1c86c84b715b1a9714673041475"
 
 [metadata.files]
 anyio = [
@@ -840,6 +874,10 @@ attrs = [
     {file = "attrs-21.4.0-py2.py3-none-any.whl", hash = "sha256:2d27e3784d7a565d36ab851fe94887c5eccd6a463168875832a1be79c82828b4"},
     {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
 ]
+bdantic = [
+    {file = "bdantic-0.2.0-py3-none-any.whl", hash = "sha256:ce6f176a2467594c7cd382f785d5d587565198d3ad3d6024f83d23e1f06a1d23"},
+    {file = "bdantic-0.2.0.tar.gz", hash = "sha256:4d33c8481b32513abc5ff4be4148cb62f3708a9ed79eac0b8985acb0ddadaebf"},
+]
 beancount = [
     {file = "beancount-2.3.4-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:3c9e8244bfa4d48b24cdfe3eb6b62bf9437ede4ab93da5fa310864414e36bb58"},
     {file = "beancount-2.3.4-cp36-cp36m-win_amd64.whl", hash = "sha256:94248237cb195ed331236df52710b6e1846e1cd90e51770290af2df955708372"},
@@ -850,6 +888,10 @@ beancount = [
     {file = "beancount-2.3.4-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:48f329fbf9b647259b08f0f0d73eb3a5faa20f018093086d3d6b39b6a83ebee7"},
     {file = "beancount-2.3.4-cp39-cp39-win_amd64.whl", hash = "sha256:56c9cf705f921cd42223c12011e0ad6f8f04c58b08d4687885094dbe4fddb942"},
     {file = "beancount-2.3.4.tar.gz", hash = "sha256:2bf08ce6a95d98000f4d73395985cd1deb81c0d52ed5a76e610bac77d82f86c0"},
+]
+beancount-stubs = [
+    {file = "beancount-stubs-0.1.3.tar.gz", hash = "sha256:143f1afef0436fb5fbaef5fc672736d6e601a6487ed757c9072fd5fe805e8374"},
+    {file = "beancount_stubs-0.1.3-py3-none-any.whl", hash = "sha256:59104d354927c6991a64f219a3e8626d9687e240dc701f08297752d7100f865e"},
 ]
 beautifulsoup4 = [
     {file = "beautifulsoup4-4.10.0-py3-none-any.whl", hash = "sha256:9a315ce70049920ea4572a4055bc4bd700c940521d36fc858205ad4fcde149bf"},
@@ -1112,6 +1154,32 @@ mccabe = [
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
+]
+orjson = [
+    {file = "orjson-3.6.6-cp310-cp310-macosx_10_7_x86_64.whl", hash = "sha256:e4a7cad6c63306318453980d302c7c0b74c0cc290dd1f433bbd7d31a5af90cf1"},
+    {file = "orjson-3.6.6-cp310-cp310-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:e533941dca4a0530a876de32e54bf2fd3269cdec3751aebde7bfb5b5eba98e74"},
+    {file = "orjson-3.6.6-cp310-cp310-manylinux_2_24_aarch64.whl", hash = "sha256:9adf63be386eaa34278967512b83ff8fc4bed036a246391ae236f68d23c47452"},
+    {file = "orjson-3.6.6-cp310-cp310-manylinux_2_24_x86_64.whl", hash = "sha256:3b636753ae34d4619b11ea7d664a2f1e87e55e9738e5123e12bcce22acae9d13"},
+    {file = "orjson-3.6.6-cp310-none-win_amd64.whl", hash = "sha256:78a10295ed048fd916c6584d6d27c232eae805a43e7c14be56e3745f784f0eb6"},
+    {file = "orjson-3.6.6-cp37-cp37m-macosx_10_7_x86_64.whl", hash = "sha256:82b4f9fb2af7799b52932a62eac484083f930d5519560d6f64b24d66a368d03f"},
+    {file = "orjson-3.6.6-cp37-cp37m-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:a0033d07309cc7d8b8c4bc5d42f0dd4422b53ceb91dee9f4086bb2afa70b7772"},
+    {file = "orjson-3.6.6-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2b321f99473116ab7c7c028377372f7b4adba4029aaca19cd567e83898f55579"},
+    {file = "orjson-3.6.6-cp37-cp37m-manylinux_2_24_aarch64.whl", hash = "sha256:b9c98ed94f1688cc11b5c61b8eea39d854a1a2f09f71d8a5af005461b14994ed"},
+    {file = "orjson-3.6.6-cp37-cp37m-manylinux_2_24_x86_64.whl", hash = "sha256:00b333a41392bd07a8603c42670547dbedf9b291485d773f90c6470eff435608"},
+    {file = "orjson-3.6.6-cp37-none-win_amd64.whl", hash = "sha256:8d4fd3bdee65a81f2b79c50937d4b3c054e1e6bfa3fc72ed018a97c0c7c3d521"},
+    {file = "orjson-3.6.6-cp38-cp38-macosx_10_7_x86_64.whl", hash = "sha256:954c9f8547247cd7a8c91094ff39c9fe314b5eaeaec90b7bfb7384a4108f416f"},
+    {file = "orjson-3.6.6-cp38-cp38-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:74e5aed657ed0b91ef05d44d6a26d3e3e12ce4d2d71f75df41a477b05878c4a9"},
+    {file = "orjson-3.6.6-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4008a5130e6e9c33abaa95e939e0e755175da10745740aa6968461b2f16830e2"},
+    {file = "orjson-3.6.6-cp38-cp38-manylinux_2_24_aarch64.whl", hash = "sha256:012761d5f3d186deb4f6238f15e9ea7c1aac6deebc8f5b741ba3b4fafe017460"},
+    {file = "orjson-3.6.6-cp38-cp38-manylinux_2_24_x86_64.whl", hash = "sha256:b464546718a940b48d095a98df4c04808bfa6c8706fe751fc3f9390bc2f82643"},
+    {file = "orjson-3.6.6-cp38-none-win_amd64.whl", hash = "sha256:f10a800f4e5a4aab52076d4628e9e4dab9370bdd9d8ea254ebfde846b653ab25"},
+    {file = "orjson-3.6.6-cp39-cp39-macosx_10_7_x86_64.whl", hash = "sha256:8010d2610cfab721725ef14d578c7071e946bbdae63322d8f7b49061cf3fde8d"},
+    {file = "orjson-3.6.6-cp39-cp39-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:8dca67a4855e1e0f9a2ea0386e8db892708522e1171dc0ddf456932288fbae63"},
+    {file = "orjson-3.6.6-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:af065d60523139b99bd35b839c7a2d8c5da55df8a8c4402d2eb6cdc07fa7a624"},
+    {file = "orjson-3.6.6-cp39-cp39-manylinux_2_24_aarch64.whl", hash = "sha256:fa1f389cc9f766ae0cf7ba3533d5089836b01a5ccb3f8d904297f1fcf3d9dc34"},
+    {file = "orjson-3.6.6-cp39-cp39-manylinux_2_24_x86_64.whl", hash = "sha256:ec1221ad78f94d27b162a1d35672b62ef86f27f0e4c2b65051edb480cc86b286"},
+    {file = "orjson-3.6.6-cp39-none-win_amd64.whl", hash = "sha256:afed2af55eeda1de6b3f1cbc93431981b19d380fcc04f6ed86e74c1913070304"},
+    {file = "orjson-3.6.6.tar.gz", hash = "sha256:55dd988400fa7fbe0e31407c683f5aaab013b5bd967167b8fe058186773c4d6c"},
 ]
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},

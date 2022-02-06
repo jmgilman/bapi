@@ -1,8 +1,10 @@
 from .dependencies import authenticated
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
+from fastapi.responses import JSONResponse
 from .internal.s3 import S3Loader
+from jmespath.exceptions import LexerError  # type: ignore
 from os.path import exists
-from .routers import account, balance, directive, query, transactions
+from .routers import account, directive, query
 from .settings import Auth, bean_file, Storage, settings
 
 title = "Beancount API"
@@ -36,10 +38,9 @@ else:
 
 # Add routes
 app.include_router(account.router)
-app.include_router(balance.router)
 app.include_router(directive.router)
 app.include_router(query.router)
-app.include_router(transactions.router)
+# app.include_router(transactions.router)
 
 
 @app.on_event("startup")
@@ -52,3 +53,16 @@ def startup():
         raise FileNotFoundError(
             f"Unable to locate beancount file at: {bean_file}"
         )
+
+
+@app.exception_handler(LexerError)
+async def unicorn_exception_handler(request: Request, exc: LexerError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "message": f"Error in JMESPath filter expression: {exc.message}",
+            "expression": exc.expression,
+            "column": exc.lex_position,
+            "token": exc.token_value,
+        },
+    )

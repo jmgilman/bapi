@@ -1,4 +1,4 @@
-import boto3
+import boto3  # type: ignore
 import os
 
 from pathlib import Path
@@ -15,6 +15,9 @@ class S3Loader:
     """
 
     def __init__(self, settings: Settings):
+        assert settings.s3 is not None
+        assert settings.s3.bucket is not None
+
         self.bucket = boto3.resource("s3").Bucket(settings.s3.bucket)
         self.settings = settings
 

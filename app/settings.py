@@ -5,12 +5,12 @@ from pydantic import BaseSettings, BaseModel
 from typing import Optional
 
 
-class Storage(Enum):
+class Storage(str, Enum):
     local = "local"
     s3 = "s3"
 
 
-class Auth(Enum):
+class Auth(str, Enum):
     none = "none"
     jwt = "jwt"
 
@@ -55,8 +55,8 @@ class Settings(BaseSettings):
 
     entrypoint: str = "main.beancount"
     work_dir: str = "/tmp/bean"
-    storage: Storage = "local"
-    auth: Auth = "none"
+    storage: Storage = Storage.local
+    auth: Auth = Auth.none
     jwt: Optional[JWT] = None
     s3: Optional[S3] = None
 

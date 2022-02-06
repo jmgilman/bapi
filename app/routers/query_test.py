@@ -1,22 +1,25 @@
-from functools import lru_cache
-from ..dependencies import BeanFile, get_beanfile
-from ..main import app
+import pytest
+
 from fastapi.testclient import TestClient
+from ..main import app
+from testing import common as c  # type: ignore
 
 
-@lru_cache
-def override():
-    return BeanFile("testing/static.beancount")
+def setup_module(_):
+    c.setup()
 
 
-def test_query():
-    client = TestClient(app)
-    app.dependency_overrides[get_beanfile] = override
+@pytest.fixture
+def client() -> TestClient:
+    return TestClient(app)
 
+
+def test_query(client):
     query = "SELECT date, narration, account, position"
+
     response = client.get(f"/query?bql={query}")
     assert response.status_code == 200
-    assert response.json()["header"] == [
+    assert response.json()["columns"] == [
         {"name": "date", "type": "date"},
         {"name": "narration", "type": "str"},
         {"name": "account", "type": "str"},
@@ -27,7 +30,8 @@ def test_query():
         "narration": "Opening Balance for checking account",
         "account": "Assets:US:BofA:Checking",
         "position": {
-            "units": {"number": 2845.77, "currency": "USD"},
+            "ty": "Position",
+            "units": {"ty": "Amount", "number": 2845.77, "currency": "USD"},
             "cost": None,
         },
     }

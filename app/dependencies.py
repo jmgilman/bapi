@@ -1,130 +1,42 @@
+import enum
 import jwt
 
 from beancount import loader
 from beancount.core import data, realization
-from beancount.query import query
-from beancount.query.query_compile import CompilationError
-from beancount.query.query_parser import ParseError
-from fastapi import Depends, HTTPException
+from bdantic import models
+from fastapi import Depends, HTTPException, Path, Query
 from fastapi.security import HTTPBearer
+from .internal.beancount import BeancountFile
 from functools import lru_cache
-from .models.core import (
-    Account,
-    BeanFileError,
-)
-from .models.directives import Directives
-from .models.data import Supported as SupportedData
-from .models.data import to_model as to_data_model
-from .models.directives import to_model as to_directive_model
-from .models.query import QueryColumn, QueryError, QueryResult
 from .settings import bean_file, settings
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
+
+T = TypeVar("T", bound="models.base.BaseList")
 
 
-class BeanFile:
-    """Represents the loaded contents of a beancount ledger file.
-
-    This class acts as a helper class which processes results from loading a
-    ledger file into a dependency that can be used across API requests. The
-    contents of the ledger file are automatically converted to their equivalent
-    pydantic models to be returned by the API. Additionally, some processing is
-    done in breaking up directives and accounts in order to make accessing some
-    data easier.
-
-    Attributes:
-        errors: Errors returned by the beancount loader. See BeanFileError.
-        options: All options contained within the beancount ledger file.
-        directives: All directive entries in the beancount ledger file.
-        raw_directives: All directive in their original beancount types.
-        accounts: All accounts contained within the beancount ledger file.
-    """
-
-    errors: Dict[str, BeanFileError]
-    options: Dict[str, Any] = []
-    directives: Directives = None
-    raw_directives: List[data.Directive] = []
-    accounts: Dict[str, Account] = {}
-
-    def __init__(self, filepath: str):
-        entries, errors, options = _load(filepath)
-
-        self.directives = Directives(
-            to_directive_model(directive) for directive in entries
-        )
-        self.raw_directives = entries
-        self.errors = BeanFileError.from_errors(errors)
-        self.options = options
-
-        realized = realization.realize(self.raw_directives)
-        for real_account in realization.iter_children(realized, True):
-            txns = []
-            open = None
-            close = None
-            for t in real_account.txn_postings:
-                if isinstance(t, data.TxnPosting):
-                    txns.append(to_directive_model(t.txn))
-                elif isinstance(t, data.Open):
-                    open = t.date
-                elif isinstance(t, data.Close):
-                    close = t.date
-
-            self.accounts[real_account.account] = Account(
-                name=real_account.account,
-                open=open,
-                close=close,
-                balance=[
-                    to_data_model(position)
-                    for position in real_account.balance
-                ],
-                transactions=txns,
-            )
-
-    def query(self, query_str: str):
-        """Queries the beancount data using the given BQL query string.
-
-        Args:
-            query_str: The BQL query string to use
-
-        Returns:
-            A QueryResult containing the results of the query
-
-        Raises:
-            QueryError: Raised when a query fails to compile or execute
-        """
-        try:
-            result = query.run_query(
-                self.raw_directives, self.options, query_str
-            )
-        except (CompilationError, ParseError) as e:
-            raise QueryError(str(e))
-
-        columns = []
-        for column in result[0]:
-            columns.append(
-                QueryColumn(name=column[0], type=column[1].__name__)
-            )
-
-        rows = []
-        for row in result[1]:
-            new_row = {}
-            for field in row._fields:
-                value = getattr(row, field)
-                if type(value) in SupportedData:
-                    value = to_data_model(value)
-                new_row[field] = value
-            rows.append(new_row)
-
-        return QueryResult(header=columns, rows=rows)
+class DirectiveType(str, enum.Enum):
+    balance = "balance"
+    close = "close"
+    commodity = "commodity"
+    custom = "custom"
+    document = "document"
+    event = "event"
+    note = "note"
+    open = "open"
+    pad = "pad"
+    price = "price"
+    query = "query"
+    transaction = "transaction"
 
 
-def _load(filepath: str):
+def _load(filepath: str) -> Tuple[List[data.Directive], List, Dict[str, Any]]:
     return loader.load_file(filepath)
 
 
 @lru_cache()
-def get_beanfile() -> BeanFile:
-    """A cached dependency to ensure a Beanfile is only parsed once."""
-    return BeanFile(bean_file)
+def get_beanfile() -> BeancountFile:
+    """A cached dependency to ensure a BeancountFile is only parsed once."""
+    return BeancountFile(*_load(bean_file))
 
 
 bearer = HTTPBearer()
@@ -148,3 +60,41 @@ def authenticated(token=Depends(bearer)):
             raise HTTPException(status_code=403, detail=str(e))
 
         return payload
+
+
+def get_directives(
+    directive: DirectiveType = Path(
+        "", description="The type of directive to fetch"
+    ),
+    beanfile: BeancountFile = Depends(get_beanfile),
+) -> Optional[models.Directives]:
+    m = models.Directives.parse(beanfile.entries)
+    return get_filter(f"[?ty == `{directive.capitalize()}`]")(m)
+
+
+def get_filter(
+    query: Optional[str] = Query(
+        None,
+        alias="filter",
+        description="A JMESPath filter to apply to the results",
+        example="[?date > `2022-01-01`]",
+    )
+) -> Callable[[T], Optional[T]]:
+    def apply_filter(m: T):
+        if query:
+            return m.filter(query)
+        else:
+            return m
+
+    return apply_filter
+
+
+def get_real_account(
+    account_name: str = Path("", description="The account name to lookup"),
+    beanfile=Depends(get_beanfile),
+) -> realization.RealAccount:
+    real_acct = beanfile.account(account_name)
+    if real_acct is None:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    return real_acct

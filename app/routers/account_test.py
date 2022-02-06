@@ -1,96 +1,95 @@
-from functools import lru_cache
-from ..dependencies import BeanFile, get_beanfile
-from ..main import app
+import jmespath  # type: ignore
+import pytest
+
 from fastapi.testclient import TestClient
+from ..main import app
+from testing import common as c  # type: ignore
 
 
-@lru_cache
-def override():
-    return BeanFile("testing/static.beancount")
+def setup_module(_):
+    c.setup()
 
 
-def test_accounts():
-    client = TestClient(app)
-    app.dependency_overrides[get_beanfile] = override
+@pytest.fixture
+def account():
+    return "Assets:US:Babble:Vacation"
 
-    expected = [
-        "Assets:US:Babble:Vacation",
-        "Assets:US:BofA:Checking",
-        "Assets:US:ETrade:Cash",
-        "Assets:US:ETrade:GLD",
-        "Assets:US:ETrade:ITOT",
-        "Assets:US:ETrade:VEA",
-        "Assets:US:ETrade:VHT",
-        "Assets:US:Federal:PreTax401k",
-        "Assets:US:Vanguard:Cash",
-        "Assets:US:Vanguard:RGAGX",
-        "Assets:US:Vanguard:VBMPX",
-        "Equity:Opening-Balances",
-        "Expenses:Financial:Commissions",
-        "Expenses:Financial:Fees",
-        "Expenses:Food:Alcohol",
-        "Expenses:Food:Coffee",
-        "Expenses:Food:Groceries",
-        "Expenses:Food:Restaurant",
-        "Expenses:Health:Dental:Insurance",
-        "Expenses:Health:Life:GroupTermLife",
-        "Expenses:Health:Medical:Insurance",
-        "Expenses:Health:Vision:Insurance",
-        "Expenses:Home:Electricity",
-        "Expenses:Home:Internet",
-        "Expenses:Home:Phone",
-        "Expenses:Home:Rent",
-        "Expenses:Taxes:Y2020:US:CityNYC",
-        "Expenses:Taxes:Y2020:US:Federal:PreTax401k",
-        "Expenses:Taxes:Y2020:US:Medicare",
-        "Expenses:Taxes:Y2020:US:SDI",
-        "Expenses:Taxes:Y2020:US:SocSec",
-        "Expenses:Taxes:Y2020:US:State",
-        "Expenses:Taxes:Y2021:US:CityNYC",
-        "Expenses:Taxes:Y2021:US:Federal:PreTax401k",
-        "Expenses:Taxes:Y2021:US:Medicare",
-        "Expenses:Taxes:Y2021:US:SDI",
-        "Expenses:Taxes:Y2021:US:SocSec",
-        "Expenses:Taxes:Y2021:US:State",
-        "Expenses:Taxes:Y2022:US:CityNYC",
-        "Expenses:Taxes:Y2022:US:Federal:PreTax401k",
-        "Expenses:Taxes:Y2022:US:Medicare",
-        "Expenses:Taxes:Y2022:US:SDI",
-        "Expenses:Taxes:Y2022:US:SocSec",
-        "Expenses:Taxes:Y2022:US:State",
-        "Expenses:Transport:Tram",
-        "Expenses:Vacation",
-        "Income:US:Babble:GroupTermLife",
-        "Income:US:Babble:Match401k",
-        "Income:US:Babble:Salary",
-        "Income:US:Babble:Vacation",
-        "Income:US:ETrade:GLD:Dividend",
-        "Income:US:ETrade:ITOT:Dividend",
-        "Income:US:ETrade:PnL",
-        "Income:US:ETrade:VEA:Dividend",
-        "Income:US:ETrade:VHT:Dividend",
-        "Income:US:Federal:PreTax401k",
-        "Liabilities:AccountsPayable",
-        "Liabilities:US:Chase:Slate",
-    ]
+
+@pytest.fixture
+def client():
+    return TestClient(app)
+
+
+def test_accounts(client):
+    j = c.load_static_json()
+    expected = sorted(jmespath.search("[?ty == 'Open'].account", j))
+
     response = client.get("/account")
     assert response.status_code == 200
-    assert response.json() == expected
+    assert sorted(response.json()) == expected
 
 
-def test_account():
-    client = TestClient(app)
-    app.dependency_overrides[get_beanfile] = override
+def test_account(account, client):
+    expected = c.fetch_account(account)
+    expected_date = jmespath.search(
+        "txn_postings[?ty == 'Open'].date", expected
+    )[0]
 
     response = client.get("/account/Assets:US:Babble:Vacation")
     assert response.status_code == 200
-    assert response.json()["name"] == "Assets:US:Babble:Vacation"
-    assert response.json()["open"] == "2020-01-01"
-    assert response.json()["close"] is None
-    assert response.json()["balance"] == [
-        {"units": {"number": -2, "currency": "VACHR"}, "cost": None}
-    ]
-    assert len(response.json()["transactions"]) == 56
+    assert response.json()["name"] == account
+    assert response.json()["open"] == expected_date
+    assert response.json()["balance"] == {
+        expected["balance"][0]["units"]["currency"]: [
+            {
+                "ty": expected["balance"][0]["ty"],
+                "units": expected["balance"][0]["units"],
+            }
+        ]
+    }
 
     response = client.get("/account/Assets:US:Babble:Vacations")
+    assert response.status_code == 404
+
+
+def test_balance(account, client):
+    expected = c.fetch_account(account)
+    expected_balance = {
+        expected["balance"][0]["units"]["currency"]: [
+            {
+                "ty": expected["balance"][0]["ty"],
+                "units": expected["balance"][0]["units"],
+            }
+        ]
+    }
+
+    response = client.get("/account/Assets:US:Babble:Vacation/balance")
+    assert response.status_code == 200
+    assert response.json() == expected_balance
+
+    response = client.get("/account/Assets:US:Babble:Vacations/balance")
+    assert response.status_code == 404
+
+
+def test_realize(account, client):
+    expected = c.fetch_account(account)
+
+    response = client.get("/account/Assets:US:Babble:Vacation/realize")
+    assert response.status_code == 200
+    assert response.json() == expected
+
+    response = client.get("/account/Assets:US:Babble:Vacations/realize")
+    assert response.status_code == 404
+
+
+def test_transactions(account, client):
+    expected = c.fetch_account(account)
+
+    response = client.get("/account/Assets:US:Babble:Vacation/transactions")
+    assert response.status_code == 200
+    assert response.json() == jmespath.search(
+        "[?ty == 'TxnPosting'].txn", expected["txn_postings"]
+    )
+
+    response = client.get("/account/Assets:US:Babble:Vacations/transactions")
     assert response.status_code == 404
