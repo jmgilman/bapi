@@ -1,5 +1,7 @@
 import jmespath  # type: ignore
 import json
+import os
+import re
 
 from app.dependencies import get_beanfile, _load
 from app.internal.beancount import BeancountFile
@@ -16,12 +18,22 @@ def fetch_account(account: str) -> str:
 
 def load_static_json() -> str:
     with open("testing/static.json", "r") as f:
-        return json.load(f)
+        j = f.read()
+
+    path = os.path.join(os.getcwd(), "testing/static.beancount")
+    return json.loads(
+        re.sub(r"^\/[a-zA-z\/]+\/testing\/static.beancount", path, j)
+    )
 
 
 def load_realize_json() -> str:
     with open("testing/realize.json", "r") as f:
-        return json.load(f)
+        j = f.read()
+
+    path = os.path.join(os.getcwd(), "testing/static.beancount")
+    return json.loads(
+        re.sub(r"^\/[a-zA-z\/]+\/testing\/static.beancount", path, j)
+    )
 
 
 @lru_cache
