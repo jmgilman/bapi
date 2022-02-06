@@ -10,10 +10,9 @@ from functools import lru_cache
 
 
 def fetch_account(account: str) -> str:
-    with open("testing/realize.json", "r") as f:
-        js = json.load(f)
-        filter = "children." + ".children.".join(account.split(":"))
-        return jmespath.search(filter, js)
+    js = load_realize_json()
+    filter = "children." + ".children.".join(account.split(":"))
+    return jmespath.search(filter, js)
 
 
 def load_static_json() -> str:
