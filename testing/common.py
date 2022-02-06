@@ -22,7 +22,7 @@ def load_static_json() -> str:
 
     path = os.path.join(os.getcwd(), "testing/static.beancount")
     return json.loads(
-        re.sub(r"^\/[a-zA-z\/]+\/testing\/static.beancount", path, j)
+        re.sub(r"\/[a-zA-z\/]+\/testing\/static.beancount", path, j)
     )
 
 
@@ -32,7 +32,7 @@ def load_realize_json() -> str:
 
     path = os.path.join(os.getcwd(), "testing/static.beancount")
     return json.loads(
-        re.sub(r"^\/[a-zA-z\/]+\/testing\/static.beancount", path, j)
+        re.sub(r"\/[a-zA-z\/]+\/testing\/static.beancount", path, j)
     )
 
 
