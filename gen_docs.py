@@ -7,6 +7,7 @@ https://github.com/Redocly/redoc/issues/726#issuecomment-645414239
 import json
 
 from app.main import app
+from app.routers import account, directive, query
 
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html>
@@ -42,5 +43,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 """
 
 if __name__ == "__main__":
+    app.include_router(account.router)
+    app.include_router(directive.router)
+    app.include_router(query.router)
+
     with open("docs/index.html", "w") as fd:
         print(HTML_TEMPLATE % json.dumps(app.openapi()), file=fd)
