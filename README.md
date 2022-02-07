@@ -11,7 +11,9 @@
 
 > An HTTP API for serving up data contained within a Beancount ledger file.
 
-The Beancount API is an HTTP API built using [FastAPI](https://fastapi.tiangolo.com/) and provides programmatic access to data that is derived from Beancount ledger files. See the [docs](https://jmgilman.github.io/bapi/) for more details.
+The Beancount API is an HTTP API built using [FastAPI][1] and provides
+programmatic access to data that is derived from Beancount ledger files. See
+the [docs][2] for more details.
 
 ## Usage
 
@@ -27,46 +29,56 @@ docker run \
 It can then be queried:
 
 ```shell
-curl http://localhost:8080/transaction
+curl http://localhost:8080/directive
 ```
 
-By default the API will look for the primary beancount file at `/run/beancount/main.beancount`. The directory it searches can be controlled by setting the `BAPI_WORKDIR` environment variable and the filename can be controlled by setting the `BAPI_ENTRYPOINT` environment variable.
+By default the API will look for the primary beancount file at
+`/run/beancount/main.beancount`. The directory it searches can be controlled by
+setting the `BAPI_WORKDIR` environment variable and the filename can be
+controlled by setting the `BAPI_ENTRYPOINT` environment variable.
 
 ## Endpoints
 
 | Endpoint     | Description
 | ------------ | --------------------------------------------------------------------------------- |
-| /account     | Fetch list of accounts or individual account information                          |
-| /balance     | Fetch all account balances or individual account balances                         |
+| /account     | Fetch, list, and realize all accounts in the ledger                               |
 | /directive   | Fetch all directives by type or generate Beancount syntax for each directive type |
 | /query       | Fetch the results of querying the Beancount data using a BQL query                |
-| /transaction | Fetch and/or filter all transactions                                              |
 
 ## Storage
 
-The API can be configured to pull files down from an Amazon S3 bucket into the
-working directory before starting. The following environment variables must be set:
+The API can be configured to pull files down from various backends. Currently
+this includes locally or downloading from an Amazon S3 bucket. See the
+environment variables section below for more details.
 
 * **BAPI_STORAGE**: `s3`
-* **BAPI_S3__BUCKET**: `bucket_name`
 
-In addition to the above, the normal AWS environment variables must be set:
-
-* **AWS_ACCESS_KEY_ID**
-* **AWS_SECRET_ACCESS_KEY**
-* **AWS_DEFAULT_REGION**
-
-If configured correctly, all files in the specified S3 bucket will be downlaoded to the working directory before the server starts. This allows storing Beancount files remotely and only pulling them down when the container starts.
+Note that internally the API uses the `boto3` Python package which pulls
+authentication details from various places. See the [documentation][3] for more
+details.
 
 ## Authentication
 
-The API can be configured to protect all endpoints by validating that a valid
-JWT is sent with each request. The following environment variables must be set:
+The API can be configured to protect all endpoints through various
+authentication schemes. Currently, the only supported scheme is JWT. See the
+environment variables section below for more details.
 
 * **BAPI_AUTH**: `jwt`
-* **BAPI_JWT__ALGORITHMS**: Set to the algorithm used by incoming JWT's
-* **BAPI_JWT__AUDIENCE**: The JWT audience
-* **BAPI_JWT__JWKS**: The JWKS endpoint where the public key can be fetched
-* **BAPI_JWT__ISSUER**: The JWT issuer
 
-Once enabled, all endpoints will become protected and return a 403 if a valid JWT is not presented in the header.
+## Environment Variables
+
+| Name                 | Default Value  | Description                                                           |
+| -------------------- | -------------- | --------------------------------------------------------------------- |
+| BAPI_ENTRYPOINT      | main.beancount | The filename of the beancount ledger.                                 |
+| BAPI_WORK_DIR        | /tmp/bean      | The location to search for the beancount ledger file.                 |
+| BAPI_AUTH            | none           | The authentication type to use for protecting endpoints.              |
+| BAPI_STORAGE         | local          | The type of storage backend to use for fetching the beancount ledger. |
+| BAPI_JWT__ALGORITHMS | RS256          | A comma separated list of algorithms allowed for encryption.          |
+| BAPI_JWT__AUDIENCE   | None           | The expected `aud` field of the JWT.                                  |
+| BAPI_JWT__JWKS       | None           | Fully-qualified URL to a JWKS endpoint for finding the public key.    |
+| BAPI_JWT__ISSUER     | None           | The JWT issuer.                                                       |
+| BAPI_S3__BUCKET      | None           | The name of the S3 bucket to download to the work directory.          |
+
+[1]: https://fastapi.tiangolo.com/
+[2]: https://jmgilman.github.io/bapi/
+[3]: https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html#environment-variables
