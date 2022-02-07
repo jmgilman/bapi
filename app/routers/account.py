@@ -1,8 +1,8 @@
+from .. import dependencies as dep
 from bdantic.models.data import Inventory
 from bdantic.models.directives import Transaction, TxnPosting
 from bdantic.models.realize import Account, RealAccount
 from beancount.core import realization
-from ..dependencies import get_beanfile, get_real_account
 from fastapi import APIRouter, Depends
 from typing import cast, Dict, List
 
@@ -17,8 +17,11 @@ router = APIRouter(prefix="/account", tags=["accounts"])
     response_model_exclude_none=True,
     response_model_by_alias=True,
 )
-def accounts(beanfile=Depends(get_beanfile)) -> List[str]:
-    return list(beanfile.accounts())
+def accounts(
+    beanfile=Depends(dep.get_beanfile),
+    search=Depends(dep.get_search_accounts),
+) -> List[str]:
+    return search(list(beanfile.accounts()))
 
 
 @router.get(
@@ -30,7 +33,7 @@ def accounts(beanfile=Depends(get_beanfile)) -> List[str]:
     response_model_by_alias=True,
 )
 def account(
-    real_acct: realization.RealAccount = Depends(get_real_account),
+    real_acct: realization.RealAccount = Depends(dep.get_real_account),
 ) -> Account:
     return RealAccount.parse(real_acct).to_account()
 
@@ -44,7 +47,7 @@ def account(
     response_model_by_alias=True,
 )
 def balance(
-    real_acct: realization.RealAccount = Depends(get_real_account),
+    real_acct: realization.RealAccount = Depends(dep.get_real_account),
 ) -> Dict[str, Inventory]:
     return RealAccount.parse(real_acct).to_account().balance
 
@@ -58,7 +61,7 @@ def balance(
     response_model_by_alias=True,
 )
 def realize(
-    real_acct: realization.RealAccount = Depends(get_real_account),
+    real_acct: realization.RealAccount = Depends(dep.get_real_account),
 ) -> RealAccount:
     return RealAccount.parse(real_acct)
 
@@ -72,7 +75,10 @@ def realize(
     response_model_by_alias=True,
 )
 def transactions(
-    real_acct: realization.RealAccount = Depends(get_real_account),
+    real_acct: realization.RealAccount = Depends(dep.get_real_account),
+    filter=Depends(dep.get_filter),
+    search=Depends(dep.get_search_directives),
+    priority=Depends(dep.get_mutate_priority),
 ) -> List[Transaction]:
     txn_postings = cast(
         List[TxnPosting],
@@ -80,4 +86,7 @@ def transactions(
             "[?ty == 'TxnPosting']"
         ),
     )
-    return [tp.txn for tp in txn_postings]
+    if priority == dep.MutatePriority.filter:
+        return search(filter([tp.txn for tp in txn_postings]))
+    else:
+        return filter(search([tp.txn for tp in txn_postings]))

@@ -2,12 +2,17 @@ import enum
 
 from beancount.core import realization
 from bdantic import models
+from bdantic.types import ModelDirective
 from fastapi import Depends, HTTPException, Path, Query, Request
 from .internal.beancount import BeancountFile
 from .internal.settings import settings
-from typing import Callable, Optional, TypeVar
+from .internal.search import search_accounts, search_directives, Directives
+from typing import Callable, List, Optional, TypeVar, Union
 
-T = TypeVar("T", bound="models.base.BaseList")
+Filterable = Union[
+    models.base.BaseList, List[ModelDirective], List[models.TxnPosting]
+]
+T = TypeVar("T", bound="Filterable")
 
 
 class DirectiveType(str, enum.Enum):
@@ -25,6 +30,13 @@ class DirectiveType(str, enum.Enum):
     price = "price"
     query = "query"
     transaction = "transaction"
+
+
+class MutatePriority(str, enum.Enum):
+    """An enum controlling the order in which filtering/searching occurs."""
+
+    filter = "filter"
+    search = "search"
 
 
 def authenticated(request: Request) -> None:
@@ -74,7 +86,7 @@ def get_filter(
         description="A JMESPath filter to apply to the results",
         example="[?date > `2022-01-01`]",
     )
-) -> Callable[[T], Optional[T]]:
+) -> Callable[[T], T]:
     """Generates a function for filtering a list of models with a query.
 
     Args:
@@ -86,11 +98,36 @@ def get_filter(
 
     def apply_filter(m: T):
         if query:
-            return m.filter(query)
+            if isinstance(m, models.base.BaseList):
+                return m.filter(query)
+            elif isinstance(m, list) and m:
+                if isinstance(m[0], models.TxnPosting):
+                    filtered_txns = models.realize.TxnPostings(
+                        __root__=m
+                    ).filter(query)
+                    if filtered_txns:
+                        return filtered_txns.__root__
+                    else:
+                        return []
+                else:
+                    filtered_dirs = models.Directives(__root__=m).filter(query)
+                    if filtered_dirs:
+                        return filtered_dirs.__root__
+                    else:
+                        return []
         else:
             return m
 
     return apply_filter
+
+
+def get_mutate_priority(
+    priority: MutatePriority = Query(
+        MutatePriority.filter,
+        description="Which operation should happen first: filter or search",
+    )
+) -> MutatePriority:
+    return priority
 
 
 def get_real_account(
@@ -112,3 +149,53 @@ def get_real_account(
         raise HTTPException(status_code=404, detail="Account not found")
 
     return real_acct
+
+
+def get_search_accounts(
+    search: Optional[str] = Query(
+        None,
+        description="A string to search across results with",
+        example="Assets",
+    )
+) -> Callable[[List[str]], Optional[List[str]]]:
+    """Generates a function for running a full text search across accounts.
+
+    Args:
+        search: A string to search across accounts with.
+
+    Returns:
+        A function that searches across accounts.
+    """
+
+    def apply_search(accounts: List[str]):
+        if search:
+            return search_accounts(accounts).search(search)
+        else:
+            return accounts
+
+    return apply_search
+
+
+def get_search_directives(
+    search: Optional[str] = Query(
+        None,
+        description="A string to search across results with",
+        example="Home Depot",
+    )
+) -> Callable[[Directives], Optional[Directives]]:
+    """Generates a function for running a full text search across directives.
+
+    Args:
+        search: A string to search across directives with.
+
+    Returns:
+        A function that searches across directives.
+    """
+
+    def apply_search(directives: Directives):
+        if search:
+            return search_directives(directives).search(search)
+        else:
+            return directives
+
+    return apply_search

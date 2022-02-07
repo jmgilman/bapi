@@ -1,11 +1,7 @@
+from .. import dependencies as dep
 from beancount.core import data
 from bdantic.models.file import Directives
 from bdantic.types import ModelDirective
-from ..dependencies import (
-    get_beanfile,
-    get_directives,
-    get_filter,
-)
 from fastapi import APIRouter, Depends
 from fastapi.responses import PlainTextResponse
 from ..internal.beancount import BeancountFile
@@ -23,9 +19,15 @@ router = APIRouter(prefix="/directive", tags=["directives"])
     response_model_by_alias=True,
 )
 def directives(
-    beanfile: BeancountFile = Depends(get_beanfile), filter=Depends(get_filter)
+    beanfile: BeancountFile = Depends(dep.get_beanfile),
+    filter=Depends(dep.get_filter),
+    search=Depends(dep.get_search_directives),
+    priority=Depends(dep.get_mutate_priority),
 ):
-    return filter(Directives.parse(beanfile.entries))
+    if priority == dep.MutatePriority.filter:
+        return search(filter(Directives.parse(beanfile.entries)))
+    else:
+        return filter(search(Directives.parse(beanfile.entries)))
 
 
 @router.get(
@@ -37,10 +39,15 @@ def directives(
     response_model_by_alias=True,
 )
 def directive(
-    directives: List[data.Directive] = Depends(get_directives),
-    filter=Depends(get_filter),
+    directives: List[data.Directive] = Depends(dep.get_directives),
+    filter=Depends(dep.get_filter),
+    search=Depends(dep.get_search_directives),
+    priority=Depends(dep.get_mutate_priority),
 ):
-    return filter(directives)
+    if priority == dep.MutatePriority.filter:
+        return search(filter(directives))
+    else:
+        return filter(search(directives))
 
 
 @router.post(
