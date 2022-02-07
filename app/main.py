@@ -1,5 +1,7 @@
 from .dependencies import authenticated
 from fastapi import FastAPI, Depends
+from fastapi.responses import JSONResponse
+from jmespath.exceptions import LexerError  # type: ignore
 from .routers import account, directive, query
 from .internal.settings import Auth, settings
 
@@ -33,3 +35,20 @@ def startup():
     app.include_router(account.router)
     app.include_router(directive.router)
     app.include_router(query.router)
+
+
+# Exception handlers
+
+
+@app.exception_handler(LexerError)
+def jmespath_exception_handler(_, exc: LexerError):
+    """Provides an exception handler for catching JMESPath exceptions."""
+    return JSONResponse(
+        status_code=422,
+        content={
+            "message": f"Error in JMESPath filter expression: {exc.message}",
+            "expression": exc.expression,
+            "column": exc.lex_position,
+            "token": exc.token_value,
+        },
+    )
