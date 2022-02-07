@@ -36,14 +36,12 @@ class JWTAuth(BaseAuth):
         except IndexError:
             return False
 
-        client = jwt.PyJWKClient(self.settings.jwt.jwks)
-        signing_key = client.get_signing_key_from_jwt(token).key
-
+        signing_key = self.client().get_signing_key_from_jwt(token).key
         try:
             jwt.decode(
                 token,
                 signing_key,
-                algorithms=self.settings.jwt.algorithms.split(","),
+                algorithms=self.settings.jwt.algorithms.split(", "),
                 audience=self.settings.jwt.audience,
                 issuer=self.settings.jwt.issuer,
             )
@@ -51,6 +49,10 @@ class JWTAuth(BaseAuth):
             return False
 
         return True
+
+    def client(self) -> jwt.PyJWKClient:
+        assert self.settings.jwt is not None
+        return jwt.PyJWKClient(self.settings.jwt.jwks)
 
     @staticmethod
     def validate(settings):
