@@ -1,0 +1,13 @@
+site_name: Beancount API
+theme: material
+nav:
+  - Home: index.md
+  - Filtering: filtering.md
+  - Auth:
+      - JWT: jwt.md
+  - Storage:
+      - Redis: redis.md
+      - S3: s3.md
+  - API: api.md
+plugins:
+  - render_swagger
