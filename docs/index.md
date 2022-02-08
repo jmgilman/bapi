@@ -1,9 +1,7 @@
 # Introduction
 
-The Beancount API is an HTTP API built on
-[FastAPI](https://fastapi.tiangolo.com/) and provides programmatic access to a
-[Beancount](https://beancount.github.io/docs/index.html) ledger. It is
-[OpenAPI](https://www.openapis.org/) compliant (see [API](api.md)) and provides
+The Beancount API is an HTTP API built on [FastAPI][1] and provides programmatic
+access to a [Beancount][2] ledger. It is [OpenAPI][3] compliant and provides
 rich access to the data contained within a ledger.
 
 ## Usage
@@ -46,3 +44,7 @@ left for more details.
 | BAPI_REDIS__PORT     | 6379           | The Redis server port                                                 |
 | BAPI_REDIS__SSL      | True           | Whether to enable SSL for the Redis connection or not                 |
 | BAPI_S3__BUCKET      | ""             | The name of the S3 bucket to download to the work directory.          |
+
+[1]: https://fastapi.tiangolo.com/
+[2]: https://beancount.github.io/docs/index.html
+[3]: https://www.openapis.org/
