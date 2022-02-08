@@ -6,6 +6,7 @@ from .base import BaseAuth, BaseStorage
 from .beancount import BeancountFile
 from .auth.jwt import JWTAuth, JWTConfig
 from .storage.local import LocalStorage
+from .storage.redis import RedisConfig, RedisStorage
 from .storage.s3 import S3Config, S3Storage
 from pydantic import BaseSettings
 from typing import Dict, Optional, Type
@@ -13,6 +14,7 @@ from typing import Dict, Optional, Type
 
 class Storage(str, Enum):
     local = "local"
+    redis = "redis"
     s3 = "s3"
 
 
@@ -38,12 +40,14 @@ class Settings(BaseSettings):
     storage: Storage = Storage.local
     auth: Auth = Auth.none
     jwt: Optional[JWTConfig] = None
+    redis: Optional[RedisConfig] = None
     s3: Optional[S3Config] = None
 
     _auth_providers: Dict[Auth, Type[BaseAuth]] = {Auth.jwt: JWTAuth}
 
     _storage_providers: Dict[Storage, Type[BaseStorage]] = {
         Storage.local: LocalStorage,
+        Storage.redis: RedisStorage,
         Storage.s3: S3Storage,
     }
 

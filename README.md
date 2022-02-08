@@ -48,14 +48,20 @@ controlled by setting the `BAPI_ENTRYPOINT` environment variable.
 ## Storage
 
 The API can be configured to pull files down from various backends. Currently
-this includes locally or downloading from an Amazon S3 bucket. See the
-environment variables section below for more details.
+this includes locally, loading a key from Redis, or downloading from an Amazon
+S3 bucket. See the environment variables section below for more details.
 
-* **BAPI_STORAGE**: `s3`
+* **BAPI_STORAGE**: `local` or `redis` or `s3`
 
-Note that internally the API uses the `boto3` Python package which pulls
+Note that internally the API uses the `boto3` Python package for S3 which pulls
 authentication details from various places. See the [documentation][3] for more
 details.
+
+The Redis client can be configured to pull a pickle cache instead of expecting
+the raw contents of a Beancount ledger. In this case, the key is expected to
+contain a pickled version of the `(entries, errors, options)` tuple that is
+returned when the Beancount loader is called. This can greatly improve startup
+speeds on large ledgers as it removes the need to parse it again.
 
 ## Authentication
 
@@ -63,7 +69,7 @@ The API can be configured to protect all endpoints through various
 authentication schemes. Currently, the only supported scheme is JWT. See the
 environment variables section below for more details.
 
-* **BAPI_AUTH**: `jwt`
+* **BAPI_AUTH**: `none` or `jwt`
 
 ## Environment Variables
 
@@ -77,7 +83,13 @@ environment variables section below for more details.
 | BAPI_JWT__AUDIENCE   | None           | The expected `aud` field of the JWT.                                  |
 | BAPI_JWT__JWKS       | None           | Fully-qualified URL to a JWKS endpoint for finding the public key.    |
 | BAPI_JWT__ISSUER     | None           | The JWT issuer.                                                       |
-| BAPI_S3__BUCKET      | None           | The name of the S3 bucket to download to the work directory.          |
+| BAPI_REDIS__CACHED   | False          | Whether the loaded value is a pickle cache                            |
+| BAPI_REDIS__HOST     | localhost      | The hostname of the Redis server                                      |
+| BAPI_REDIS__KEY      | beancount      | The Redis key to read                                                 |
+| BAPI_REDIS__PASSWORD | ""             | The Redis server password                                             |
+| BAPI_REDIS__PORT     | 6379           | The Redis server port                                                 |
+| BAPI_REDIS__SSL      | True           | Whether to enable SSL for the Redis connection or not                 |
+| BAPI_S3__BUCKET      | ""             | The name of the S3 bucket to download to the work directory.          |
 
 [1]: https://fastapi.tiangolo.com/
 [2]: https://jmgilman.github.io/bapi/

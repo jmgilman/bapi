@@ -44,7 +44,7 @@ class S3Storage(BaseStorage):
     def validate(settings):
         if settings.s3 is None:
             raise ValidationError("Must set environment variables for S3")
-        elif settings.s3.bucket is None:
+        elif not settings.s3.bucket:
             raise ValidationError(
                 "Must set the S3 bucket environment variable"
             )
