@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .beancount import BeancountFile
+from bdantic import models
 from fastapi import Request
 from typing import TYPE_CHECKING
 
@@ -56,7 +56,7 @@ class BaseStorage:
     def __init__(self, settings: Settings):
         self.settings = settings
 
-    def load(self) -> BeancountFile:
+    def load(self) -> models.BeancountFile:
         """Returns a new instance of `BeancountFile` with the loaded ledger.
 
         Returns:

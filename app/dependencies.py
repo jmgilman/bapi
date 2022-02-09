@@ -1,13 +1,11 @@
 import enum
 
-from beancount.core import realization
 from bdantic import models
 from bdantic.types import ModelDirective
 from fastapi import Depends, HTTPException, Path, Query, Request
-from .internal.beancount import BeancountFile
 from .internal.settings import settings
 from .internal.search import search_accounts, search_directives, Directives
-from typing import Callable, List, Optional, TypeVar, Union
+from typing import Callable, Dict, List, Optional, Type, TypeVar, Union
 
 Filterable = Union[
     models.base.BaseList, List[ModelDirective], List[models.TxnPosting]
@@ -39,6 +37,22 @@ class MutatePriority(str, enum.Enum):
     search = "search"
 
 
+_TYPE_MAP: Dict[DirectiveType, Type[ModelDirective]] = {
+    DirectiveType.balance: models.Balance,
+    DirectiveType.close: models.Close,
+    DirectiveType.commodity: models.Commodity,
+    DirectiveType.custom: models.Custom,
+    DirectiveType.document: models.Document,
+    DirectiveType.event: models.Event,
+    DirectiveType.note: models.Note,
+    DirectiveType.open: models.Open,
+    DirectiveType.pad: models.Pad,
+    DirectiveType.price: models.Price,
+    DirectiveType.query: models.Query,
+    DirectiveType.transaction: models.Transaction,
+}
+
+
 def authenticated(request: Request) -> None:
     """Validates requests that require authentication.
 
@@ -52,7 +66,7 @@ def authenticated(request: Request) -> None:
         raise HTTPException(status_code=403)
 
 
-def get_beanfile() -> BeancountFile:
+def get_beanfile() -> models.BeancountFile:
     """Returns the loaded `BeancountFile` instance.
 
     Returns:
@@ -65,8 +79,8 @@ def get_directives(
     directive: DirectiveType = Path(
         "", description="The type of directive to fetch"
     ),
-    beanfile: BeancountFile = Depends(get_beanfile),
-) -> Optional[models.Directives]:
+    beanfile: models.BeancountFile = Depends(get_beanfile),
+) -> models.Directives:
     """Filters out all directives not matching the requested type.
 
     Args:
@@ -75,8 +89,7 @@ def get_directives(
     Returns:
         A list of filtered directives.
     """
-    m = models.Directives.parse(beanfile.entries)
-    return get_filter(f"[?ty == `{directive.capitalize()}`]")(m)
+    return beanfile.entries.by_type(_TYPE_MAP[directive])  # type: ignore
 
 
 def get_filter(
@@ -130,10 +143,20 @@ def get_mutate_priority(
     return priority
 
 
+def get_account(
+    account_name: str = Path("", description="The account name to lookup"),
+    beanfile: models.BeancountFile = Depends(get_beanfile),
+) -> models.Account:
+    if account_name not in beanfile.accounts:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    return beanfile.accounts[account_name]
+
+
 def get_real_account(
     account_name: str = Path("", description="The account name to lookup"),
-    beanfile=Depends(get_beanfile),
-) -> realization.RealAccount:
+    beanfile: models.BeancountFile = Depends(get_beanfile),
+) -> models.RealAccount:
     """Fetches the given account from a realization.
 
     Args:
@@ -143,12 +166,16 @@ def get_real_account(
         HTTPException: If the account was not found in the realization.
 
     Returns:
-        A `realization.RealAccount` instance."""
-    real_acct = beanfile.account(account_name)
-    if real_acct is None:
+        A `RealAccount` instance."""
+    root = beanfile.realize()
+
+    try:
+        for key in account_name.split(":"):
+            root = root.children[key]
+    except KeyError:
         raise HTTPException(status_code=404, detail="Account not found")
 
-    return real_acct
+    return root
 
 
 def get_search_accounts(

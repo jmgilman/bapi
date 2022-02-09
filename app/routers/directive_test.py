@@ -18,6 +18,7 @@ def syntax() -> Dict[str, Tuple[Dict, str]]:
         "open": (
             {
                 "ty": "Open",
+                "id": "",
                 "date": "2022-01-01",
                 "account": "Assets:Bank:Test",
             },
@@ -26,18 +27,25 @@ def syntax() -> Dict[str, Tuple[Dict, str]]:
         "close": (
             {
                 "ty": "Close",
+                "id": "",
                 "date": "2022-01-01",
                 "account": "Assets:Bank:Test",
             },
             "2022-01-01 close Assets:Bank:Test\n",
         ),
         "commodity": (
-            {"ty": "Commodity", "date": "2022-01-01", "currency": "USD"},
+            {
+                "ty": "Commodity",
+                "id": "",
+                "date": "2022-01-01",
+                "currency": "USD",
+            },
             "2022-01-01 commodity USD\n",
         ),
         "pad": (
             {
                 "ty": "Pad",
+                "id": "",
                 "date": "2022-01-01",
                 "account": "Assets:Bank:Test1",
                 "source_account": "Assets:Bank:Test2",
@@ -47,6 +55,7 @@ def syntax() -> Dict[str, Tuple[Dict, str]]:
         "balance": (
             {
                 "ty": "Balance",
+                "id": "",
                 "date": "2022-01-01",
                 "account": "Assets:Bank:Test",
                 "amount": {
@@ -61,6 +70,7 @@ def syntax() -> Dict[str, Tuple[Dict, str]]:
         "transaction": (
             {
                 "ty": "Transaction",
+                "id": "",
                 "date": "2022-01-01",
                 "flag": "*",
                 "payee": "Payee",
@@ -85,6 +95,7 @@ def syntax() -> Dict[str, Tuple[Dict, str]]:
         "note": (
             {
                 "ty": "Note",
+                "id": "",
                 "date": "2022-01-01",
                 "account": "Assets:Bank:Test",
                 "comment": "Test comment",
@@ -94,6 +105,7 @@ def syntax() -> Dict[str, Tuple[Dict, str]]:
         "event": (
             {
                 "ty": "Event",
+                "id": "",
                 "date": "2022-01-01",
                 "type": "Test",
                 "description": "Test event",
@@ -103,6 +115,7 @@ def syntax() -> Dict[str, Tuple[Dict, str]]:
         "query": (
             {
                 "ty": "Query",
+                "id": "",
                 "date": "2022-01-01",
                 "name": "Query",
                 "query_string": "SELECT account",
@@ -112,6 +125,7 @@ def syntax() -> Dict[str, Tuple[Dict, str]]:
         "price": (
             {
                 "ty": "Price",
+                "id": "",
                 "date": "2022-01-01",
                 "currency": "USD",
                 "amount": {
@@ -124,6 +138,7 @@ def syntax() -> Dict[str, Tuple[Dict, str]]:
         "document": (
             {
                 "ty": "Document",
+                "id": "",
                 "date": "2022-01-01",
                 "account": "Assets:Bank:Test",
                 "filename": "test.doc",

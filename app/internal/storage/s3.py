@@ -1,10 +1,11 @@
 import boto3  # type: ignore
 import os
 
-from ..beancount import BeancountFile, from_file
+from ..base import BaseStorage, ValidationError
+from ..beancount import from_file
+from bdantic import models
 from pathlib import Path
 from pydantic import BaseModel
-from ..base import BaseStorage, ValidationError
 from typing import Any
 
 
@@ -29,7 +30,7 @@ class S3Storage(BaseStorage):
 
     bucket: Any = None
 
-    def load(self) -> BeancountFile:
+    def load(self) -> models.BeancountFile:
         assert self.settings.s3 is not None
         if not self.bucket:
             self.bucket = boto3.resource("s3").Bucket(self.settings.s3.bucket)

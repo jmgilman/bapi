@@ -32,7 +32,7 @@ def test_account(account):
             "txn_postings[?ty == 'Open'].date", expected
         )[0]
 
-        response = client.get("/account/Assets:US:Babble:Vacation")
+        response = client.get(f"/account/{account}")
         assert response.status_code == 200
         assert response.json()["name"] == account
         assert response.json()["open"] == expected_date
@@ -45,7 +45,7 @@ def test_account(account):
             ]
         }
 
-        response = client.get("/account/Assets:US:Babble:Vacations")
+        response = client.get(f"/account/{account}123")
         assert response.status_code == 404
 
 
@@ -61,11 +61,11 @@ def test_balance(account):
             ]
         }
 
-        response = client.get("/account/Assets:US:Babble:Vacation/balance")
+        response = client.get(f"/account/{account}/balance")
         assert response.status_code == 200
         assert response.json() == expected_balance
 
-        response = client.get("/account/Assets:US:Babble:Vacations/balance")
+        response = client.get(f"/account/{account}123/balance")
         assert response.status_code == 404
 
 
@@ -73,27 +73,23 @@ def test_realize(account):
     with TestClient(app) as client:
         expected = c.fetch_account(account)
 
-        response = client.get("/account/Assets:US:Babble:Vacation/realize")
+        response = client.get(f"/account/{account}/realize")
         assert response.status_code == 200
         assert response.json() == expected
 
-        response = client.get("/account/Assets:US:Babble:Vacations/realize")
+        response = client.get(f"/account/{account}123/realize")
         assert response.status_code == 404
 
 
 def test_transactions(account):
     with TestClient(app) as client:
-        expected = c.fetch_account(account)
+        expected = c.load_static_json()
 
-        response = client.get(
-            "/account/Assets:US:Babble:Vacation/transactions"
-        )
+        response = client.get(f"/account/{account}/transactions")
         assert response.status_code == 200
         assert response.json() == jmespath.search(
-            "[?ty == 'TxnPosting'].txn", expected["txn_postings"]
+            f"[?postings[?account == '{account}']]", expected
         )
 
-        response = client.get(
-            "/account/Assets:US:Babble:Vacations/transactions"
-        )
+        response = client.get(f"/account/{account}123/transactions")
         assert response.status_code == 404

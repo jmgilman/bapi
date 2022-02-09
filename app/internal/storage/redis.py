@@ -1,9 +1,8 @@
 import redis
-import pickle
 
-from ..beancount import BeancountFile
 from ..base import BaseStorage, ValidationError
 from beancount import loader
+from bdantic import models
 from pydantic import BaseModel
 
 
@@ -30,7 +29,7 @@ class RedisConfig(BaseModel):
 class RedisStorage(BaseStorage):
     """Provides an interface for loading ledgers stored in Redis."""
 
-    def load(self) -> BeancountFile:
+    def load(self) -> models.BeancountFile:
         assert self.settings.redis is not None
         client = redis.Redis(
             host=self.settings.redis.host,
@@ -45,7 +44,7 @@ class RedisStorage(BaseStorage):
                 raise Exception(
                     "Redis returned no data with the configured key"
                 )
-            return BeancountFile(*pickle.loads(cached))
+            return models.BeancountFile.decompress(cached)
         else:
             contents = client.get(self.settings.redis.key)
             if not contents:
@@ -53,7 +52,9 @@ class RedisStorage(BaseStorage):
                     "Redis returned no data with the configured key"
                 )
 
-            return BeancountFile(*loader.load_string(contents.decode("utf-8")))
+            return models.BeancountFile.parse(
+                loader.load_string(contents.decode("utf-8"))
+            )
 
     @staticmethod
     def validate(settings):

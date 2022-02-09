@@ -1,9 +1,6 @@
-import bdantic
-
 from bdantic import models
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from ..dependencies import get_beanfile
-from ..internal.beancount import BeancountFile, QueryError
 
 router = APIRouter(prefix="/query", tags=["query"])
 
@@ -16,9 +13,6 @@ router = APIRouter(prefix="/query", tags=["query"])
 )
 def query(
     bql: str = Query("", description="The BQL query string"),
-    beanfile: BeancountFile = Depends(get_beanfile),
+    beanfile: models.BeancountFile = Depends(get_beanfile),
 ):
-    try:
-        return bdantic.parse_query(beanfile.query(bql))
-    except QueryError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return beanfile.query(bql)

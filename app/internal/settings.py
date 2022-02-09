@@ -1,13 +1,13 @@
 import os
 
-from enum import Enum
-from functools import cached_property
 from .base import BaseAuth, BaseStorage
-from .beancount import BeancountFile
 from .auth.jwt import JWTAuth, JWTConfig
 from .storage.local import LocalStorage
 from .storage.redis import RedisConfig, RedisStorage
 from .storage.s3 import S3Config, S3Storage
+from enum import Enum
+from bdantic import models
+from functools import cached_property
 from pydantic import BaseSettings
 from typing import Dict, Optional, Type
 
@@ -57,7 +57,7 @@ class Settings(BaseSettings):
         keep_untouched = (cached_property,)
 
     @cached_property
-    def beanfile(self) -> BeancountFile:
+    def beanfile(self) -> models.BeancountFile:
         """Returns the `BeancountFile` instance for the configured ledger.
 
         How and where the beancount ledger is loaded from is determined by the

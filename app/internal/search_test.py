@@ -68,6 +68,7 @@ def test_search_accounts():
 def test_search_directives():
     # Close
     d = models.Close(
+        id="",
         date=date.today(),
         meta=None,
         account="Assets:Test",
@@ -77,13 +78,14 @@ def test_search_directives():
     assert fts.search("Assets") == []
 
     # Commodity
-    d = models.Commodity(date=date.today(), meta=None, currency="USD")
+    d = models.Commodity(id="", date=date.today(), meta=None, currency="USD")
     fts = search_directives([d])
     assert fts.search("USD") == [d]
     assert fts.search("CAD") == []
 
     # Document
     d = models.Document(
+        id="",
         date=date.today(),
         meta=None,
         account="Assets:Test",
@@ -100,6 +102,7 @@ def test_search_directives():
 
     # Event
     d = models.Event(
+        id="",
         date=date.today(),
         meta=None,
         type="test",
@@ -112,6 +115,7 @@ def test_search_directives():
 
     # Note
     d = models.Note(
+        id="",
         date=date.today(),
         meta=None,
         account="Assets:Test",
@@ -124,6 +128,7 @@ def test_search_directives():
 
     # Open
     d = models.Open(
+        id="",
         date=date.today(),
         meta=None,
         account="Assets:Test",
@@ -136,6 +141,7 @@ def test_search_directives():
 
     # Pad
     d = models.Pad(
+        id="",
         date=date.today(),
         meta=None,
         account="Assets:Test",
@@ -148,6 +154,7 @@ def test_search_directives():
 
     # Price
     d = models.Price(
+        id="",
         date=date.today(),
         meta=None,
         currency="USD",
@@ -159,6 +166,7 @@ def test_search_directives():
 
     # Query
     d = models.Query(
+        id="",
         date=date.today(),
         meta=None,
         name="Test query",
@@ -171,6 +179,7 @@ def test_search_directives():
 
     # Transaction
     d = models.Transaction(
+        id="",
         date=date.today(),
         meta=None,
         flag="*",
