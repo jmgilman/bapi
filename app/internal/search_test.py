@@ -1,8 +1,8 @@
 import pytest
 
+from .search import FullTextSearch, search_accounts, search_directives
 from bdantic import models
 from datetime import date
-from .search import FullTextSearch, search_accounts, search_directives
 
 
 def test_index_entry():

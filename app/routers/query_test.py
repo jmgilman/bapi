@@ -1,6 +1,4 @@
-from fastapi.testclient import TestClient
-from ..main import app
-from testing import common as c  # type: ignore
+from testing import common as c
 
 
 def setup_module(_):
@@ -8,7 +6,7 @@ def setup_module(_):
 
 
 def test_query():
-    with TestClient(app) as client:
+    with c.client() as client:
         query = "SELECT date, narration, account, position"
 
         response = client.get(f"/query?bql={query}")

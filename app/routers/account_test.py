@@ -1,9 +1,7 @@
 import jmespath  # type: ignore
 import pytest
 
-from fastapi.testclient import TestClient
-from ..main import app
-from testing import common as c  # type: ignore
+from testing import common as c
 
 
 def setup_module(_):
@@ -16,7 +14,7 @@ def account():
 
 
 def test_accounts():
-    with TestClient(app) as client:
+    with c.client() as client:
         j = c.load_static_json()
         expected = sorted(jmespath.search("[?ty == 'Open'].account", j))
 
@@ -26,7 +24,7 @@ def test_accounts():
 
 
 def test_account(account):
-    with TestClient(app) as client:
+    with c.client() as client:
         expected = c.fetch_account(account)
         expected_date = jmespath.search(
             "txn_postings[?ty == 'Open'].date", expected
@@ -50,7 +48,7 @@ def test_account(account):
 
 
 def test_balance(account):
-    with TestClient(app) as client:
+    with c.client() as client:
         expected = c.fetch_account(account)
         expected_balance = {
             expected["balance"][0]["units"]["currency"]: [
@@ -70,7 +68,7 @@ def test_balance(account):
 
 
 def test_realize(account):
-    with TestClient(app) as client:
+    with c.client() as client:
         expected = c.fetch_account(account)
 
         response = client.get(f"/account/{account}/realize")
@@ -82,7 +80,7 @@ def test_realize(account):
 
 
 def test_transactions(account):
-    with TestClient(app) as client:
+    with c.client() as client:
         expected = c.load_static_json()
 
         response = client.get(f"/account/{account}/transactions")

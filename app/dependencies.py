@@ -1,10 +1,10 @@
 import enum
 
+from .internal.settings import settings
+from .internal.search import search_accounts, search_directives, Directives
 from bdantic import models
 from bdantic.types import ModelDirective
 from fastapi import Depends, HTTPException, Path, Query, Request
-from .internal.settings import settings
-from .internal.search import search_accounts, search_directives, Directives
 from typing import Callable, Dict, List, Optional, Type, TypeVar, Union
 
 Filterable = Union[
@@ -37,6 +37,7 @@ class MutatePriority(str, enum.Enum):
     search = "search"
 
 
+# Map DirectveType to it's actual model type
 _TYPE_MAP: Dict[DirectiveType, Type[ModelDirective]] = {
     DirectiveType.balance: models.Balance,
     DirectiveType.close: models.Close,
@@ -53,6 +54,15 @@ _TYPE_MAP: Dict[DirectiveType, Type[ModelDirective]] = {
 }
 
 
+def get_beanfile() -> models.BeancountFile:
+    """Returns the loaded `BeancountFile` instance.
+
+    Returns:
+        The loaded `BeancountFile` instance.
+    """
+    return settings.beanfile
+
+
 def authenticated(request: Request) -> None:
     """Validates requests that require authentication.
 
@@ -66,13 +76,24 @@ def authenticated(request: Request) -> None:
         raise HTTPException(status_code=403)
 
 
-def get_beanfile() -> models.BeancountFile:
-    """Returns the loaded `BeancountFile` instance.
+def get_account(
+    account_name: str = Path("", description="The account name to lookup"),
+    beanfile: models.BeancountFile = Depends(get_beanfile),
+) -> models.Account:
+    """Returns an `Account` instance for the given account name.
+
+    Args:
+        account_name: The name of the account.
+
+    Raises:
+        HTTPException: If the account was not found.
 
     Returns:
-        The loaded `BeancountFile` instance.
-    """
-    return settings.beanfile
+        An `Account` instance of the given account name."""
+    if account_name not in beanfile.accounts:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    return beanfile.accounts[account_name]
 
 
 def get_directives(
@@ -87,7 +108,7 @@ def get_directives(
         directive: The directive type to filter against.
 
     Returns:
-        A list of filtered directives.
+        A filtered `Directives` instance.
     """
     return beanfile.entries.by_type(_TYPE_MAP[directive])  # type: ignore
 
@@ -140,17 +161,15 @@ def get_mutate_priority(
         description="Which operation should happen first: filter or search",
     )
 ) -> MutatePriority:
+    """Returns the desired priority for searching and filtering.
+
+    Args:
+        priority: The `MutatePriority` to use.
+
+    Returns:
+        The provided `MutatePriority`.
+    """
     return priority
-
-
-def get_account(
-    account_name: str = Path("", description="The account name to lookup"),
-    beanfile: models.BeancountFile = Depends(get_beanfile),
-) -> models.Account:
-    if account_name not in beanfile.accounts:
-        raise HTTPException(status_code=404, detail="Account not found")
-
-    return beanfile.accounts[account_name]
 
 
 def get_real_account(

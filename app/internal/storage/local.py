@@ -10,5 +10,5 @@ class LocalStorage(BaseStorage):
         return from_file(self.settings.entry_path())
 
     @classmethod
-    def validate(cls, _):
+    def validate(cls, _) -> None:
         pass

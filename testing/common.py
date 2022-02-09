@@ -7,7 +7,17 @@ from app.dependencies import get_beanfile
 from app.main import app
 from beancount import loader
 from bdantic import models
+from fastapi.testclient import TestClient
 from functools import lru_cache
+
+
+def client() -> TestClient:
+    """Returns a new test client for the app.
+
+    Returns:
+        A new `TestClient` instance.
+    """
+    return TestClient(app)
 
 
 def fetch_account(account: str) -> str:

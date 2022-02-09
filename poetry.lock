@@ -152,6 +152,14 @@ s3transfer = ">=0.5.0,<0.6.0"
 crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
+name = "boto3-type-annotations-with-docs"
+version = "0.3.1"
+description = "Type annotations for boto3. Adds code completion in IDEs such as PyCharm."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "botocore"
 version = "1.23.31"
 description = "Low-level, data-driven core of boto 3."
@@ -1086,7 +1094,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "8cc7a2b08d0423bbd5127dd02408f3064e7bddd17f8a74ababdb2883790bb161"
+content-hash = "bcfe7f8c977dc2fdfbd687b77fd494fbd897eb40427891c416077b17a2c4a7e4"
 
 [metadata.files]
 anyio = [
@@ -1135,6 +1143,10 @@ black = [
 boto3 = [
     {file = "boto3-1.20.31-py3-none-any.whl", hash = "sha256:948e81af347085e6bc5ff08368d7901afec9e7628adf180c9cc856c7b0ae3395"},
     {file = "boto3-1.20.31.tar.gz", hash = "sha256:3003d64ebef678b89a9909d2df3836160c7cbad5cbfe6c995a61de0875b36237"},
+]
+boto3-type-annotations-with-docs = [
+    {file = "boto3_type_annotations_with_docs-0.3.1-py3-none-any.whl", hash = "sha256:77f8e9ee3d3bfb566ffe54dce2bb46510d25460ff80212256f1eb3199cd16f92"},
+    {file = "boto3_type_annotations_with_docs-0.3.1.tar.gz", hash = "sha256:d513c53246deb2d6b13c38ccfde801eaecd47ab9f5c9ae9883386fe163b88905"},
 ]
 botocore = [
     {file = "botocore-1.23.31-py3-none-any.whl", hash = "sha256:187c736ce242bbea3d1440c580d270e0fd839276c5cc3938a85b8c59366c1803"},

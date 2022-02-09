@@ -51,11 +51,16 @@ class JWTAuth(BaseAuth):
         return True
 
     def client(self) -> jwt.PyJWKClient:
+        """Creates a new `PyJWKClient` instance.
+
+        Returns:
+            A configured `PyJWKClient` instance.
+        """
         assert self.settings.jwt is not None
         return jwt.PyJWKClient(self.settings.jwt.jwks)
 
     @staticmethod
-    def validate(settings):
+    def validate(settings) -> None:
         if settings.jwt is None:
             raise ValidationError("Must set environment variables for JWT")
         elif not settings.jwt.audience:

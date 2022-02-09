@@ -2,9 +2,7 @@ import jmespath  # type: ignore
 import pytest
 
 from ..dependencies import DirectiveType
-from fastapi.testclient import TestClient
-from ..main import app
-from testing import common as c  # type: ignore
+from testing import common as c
 from typing import Dict, Tuple
 
 
@@ -149,7 +147,7 @@ def syntax() -> Dict[str, Tuple[Dict, str]]:
 
 
 def test_directives():
-    with TestClient(app) as client:
+    with c.client() as client:
         expected = c.load_static_json()
         response = client.get("/directive")
 
@@ -157,7 +155,7 @@ def test_directives():
 
 
 def test_directive():
-    with TestClient(app) as client:
+    with c.client() as client:
         j = c.load_static_json()
 
         for v in DirectiveType:
@@ -168,7 +166,7 @@ def test_directive():
 
 
 def test_directive_syntax(syntax: Dict[str, Tuple[Dict, str]]):
-    with TestClient(app) as client:
+    with c.client() as client:
         for v in syntax.values():
             response = client.post("/directive/syntax", json=v[0])
             assert response.text == v[1]

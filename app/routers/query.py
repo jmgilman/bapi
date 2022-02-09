@@ -1,6 +1,7 @@
+from .. import dependencies as dep
 from bdantic import models
 from fastapi import APIRouter, Depends, Query
-from ..dependencies import get_beanfile
+
 
 router = APIRouter(prefix="/query", tags=["query"])
 
@@ -13,6 +14,6 @@ router = APIRouter(prefix="/query", tags=["query"])
 )
 def query(
     bql: str = Query("", description="The BQL query string"),
-    beanfile: models.BeancountFile = Depends(get_beanfile),
+    beanfile: models.BeancountFile = Depends(dep.get_beanfile),
 ):
     return beanfile.query(bql)

@@ -13,12 +13,16 @@ from typing import Dict, Optional, Type
 
 
 class Storage(str, Enum):
+    """Valid storage types which can be used with the API."""
+
     local = "local"
     redis = "redis"
     s3 = "s3"
 
 
 class Auth(str, Enum):
+    """Valid authentication types which can be used with the API."""
+
     none = "none"
     jwt = "jwt"
 
@@ -29,9 +33,10 @@ class Settings(BaseSettings):
     Attributes:
         entrypoint: The filename of the main ledger file to parse.
         work_dir: The local working directory where files will be downloaded.
-        strorage: Where to find Beancount files - local filesystem or Amazon S3
-        auth: Type of authentication to use on endpoints - none or JWT
+        storage: Where to find Beancount files
+        auth: Type of authentication to use on endpoints
         jwt: Settings for configuring JWT authentication
+        redis: Settings for configuring Redis storage
         s3: Settings for configuring Amazon S3 storage
     """
 

@@ -57,6 +57,6 @@ class RedisStorage(BaseStorage):
             )
 
     @staticmethod
-    def validate(settings):
+    def validate(settings) -> None:
         if settings.redis is None:
             raise ValidationError("Must set environment variables for Redis")
