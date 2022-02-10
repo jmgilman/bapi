@@ -186,15 +186,11 @@ def get_real_account(
 
     Returns:
         A `RealAccount` instance."""
-    root = beanfile.realize()
-
-    try:
-        for key in account_name.split(":"):
-            root = root.children[key]
-    except KeyError:
+    account = beanfile.realize().get(account_name)
+    if not account:
         raise HTTPException(status_code=404, detail="Account not found")
 
-    return root
+    return account
 
 
 def get_search_accounts(

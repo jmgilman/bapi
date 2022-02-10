@@ -11,7 +11,7 @@ fastapi = "^0.71.0"
 uvicorn = {extras = ["standard"], version = "^0.16.0"}
 boto3 = "^1.20.31"
 PyJWT = {extras = ["crypto"], version = "^2.3.0"}
-bdantic = "^0.2.2"
+bdantic = "^0.2.3"
 redis = "^4.1.2"
 
 [tool.poetry.dev-dependencies]
