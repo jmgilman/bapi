@@ -14,7 +14,7 @@ router = APIRouter(prefix="/account", tags=["accounts"])
     response_model_exclude_none=True,
     response_model_by_alias=True,
 )
-def accounts(
+async def accounts(
     beanfile: models.BeancountFile = Depends(dep.get_beanfile),
     search=Depends(dep.get_search_accounts),
 ) -> List[str]:
@@ -29,7 +29,7 @@ def accounts(
     response_model_exclude_none=True,
     response_model_by_alias=True,
 )
-def account(
+async def account(
     acct: models.Account = Depends(dep.get_account),
 ) -> models.Account:
     return acct
@@ -43,7 +43,7 @@ def account(
     response_model_exclude_none=True,
     response_model_by_alias=True,
 )
-def balance(
+async def balance(
     acct: models.Account = Depends(dep.get_account),
 ) -> Dict[str, models.Inventory]:
     return acct.balance
@@ -57,7 +57,7 @@ def balance(
     response_model_exclude_none=True,
     response_model_by_alias=True,
 )
-def realize(
+async def realize(
     real_acct: models.RealAccount = Depends(dep.get_real_account),
 ) -> models.RealAccount:
     return real_acct
@@ -71,7 +71,7 @@ def realize(
     response_model_exclude_none=True,
     response_model_by_alias=True,
 )
-def transactions(
+async def transactions(
     acct: models.Account = Depends(dep.get_account),
     beanfile: models.BeancountFile = Depends(dep.get_beanfile),
     filter=Depends(dep.get_filter),

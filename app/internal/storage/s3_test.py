@@ -28,14 +28,16 @@ def test_download(path_init, _, mock_settings):
     )
 
 
+@patch("app.internal.beancount.from_file")
 @patch("pathlib.Path.mkdir")
 @patch("pathlib.Path.__init__")
-def test_load(path_init, _, mock_settings):
+def test_load(path_init, _, from_file, mock_settings):
     bucket = Mock()
     loader = S3Storage(mock_settings)
     loader.bucket = bucket
 
     path_init.return_value = None
+    from_file.return_value = "file"
 
     object = Mock()
     object.key = "test/key.file"

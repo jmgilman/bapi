@@ -15,7 +15,7 @@ router = APIRouter(prefix="/directive", tags=["directives"])
     response_model_exclude_none=True,
     response_model_by_alias=True,
 )
-def directives(
+async def directives(
     beanfile: models.BeancountFile = Depends(dep.get_beanfile),
     filter=Depends(dep.get_filter),
     search=Depends(dep.get_search_directives),
@@ -35,7 +35,7 @@ def directives(
     response_model_exclude_none=True,
     response_model_by_alias=True,
 )
-def directive(
+async def directive(
     directives: models.Directives = Depends(dep.get_directives),
     filter=Depends(dep.get_filter),
     search=Depends(dep.get_search_directives),
@@ -53,7 +53,7 @@ def directive(
     summary="Generate syntax for the given directive.",
     response_description="The Beancount syntax for the given directive.",
 )
-def directive_syntax(
+async def directive_syntax(
     data: ModelDirective,
 ):
     return data.syntax()

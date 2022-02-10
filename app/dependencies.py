@@ -63,7 +63,7 @@ def get_beanfile() -> models.BeancountFile:
     return settings.beanfile
 
 
-def authenticated(request: Request) -> None:
+async def authenticated(request: Request) -> None:
     """Validates requests that require authentication.
 
     Raises:
@@ -76,7 +76,7 @@ def authenticated(request: Request) -> None:
         raise HTTPException(status_code=403)
 
 
-def get_account(
+async def get_account(
     account_name: str = Path("", description="The account name to lookup"),
     beanfile: models.BeancountFile = Depends(get_beanfile),
 ) -> models.Account:
@@ -96,7 +96,7 @@ def get_account(
     return beanfile.accounts[account_name]
 
 
-def get_directives(
+async def get_directives(
     directive: DirectiveType = Path(
         "", description="The type of directive to fetch"
     ),
@@ -113,7 +113,7 @@ def get_directives(
     return beanfile.entries.by_type(_TYPE_MAP[directive])  # type: ignore
 
 
-def get_filter(
+async def get_filter(
     query: Optional[str] = Query(
         None,
         alias="filter",
@@ -155,7 +155,7 @@ def get_filter(
     return apply_filter
 
 
-def get_mutate_priority(
+async def get_mutate_priority(
     priority: MutatePriority = Query(
         MutatePriority.filter,
         description="Which operation should happen first: filter or search",
@@ -172,7 +172,7 @@ def get_mutate_priority(
     return priority
 
 
-def get_real_account(
+async def get_real_account(
     account_name: str = Path("", description="The account name to lookup"),
     beanfile: models.BeancountFile = Depends(get_beanfile),
 ) -> models.RealAccount:
@@ -193,7 +193,7 @@ def get_real_account(
     return account
 
 
-def get_search_accounts(
+async def get_search_accounts(
     search: Optional[str] = Query(
         None,
         description="A string to search across results with",
@@ -218,7 +218,7 @@ def get_search_accounts(
     return apply_search
 
 
-def get_search_directives(
+async def get_search_directives(
     search: Optional[str] = Query(
         None,
         description="A string to search across results with",

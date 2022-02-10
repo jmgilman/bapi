@@ -12,7 +12,7 @@ router = APIRouter(prefix="/query", tags=["query"])
     summary="Query the beancount data using a BQL query string.",
     response_description="A QueryResult containing results of the query.",
 )
-def query(
+async def query(
     bql: str = Query("", description="The BQL query string"),
     beanfile: models.BeancountFile = Depends(dep.get_beanfile),
 ):

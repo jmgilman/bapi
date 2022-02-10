@@ -1,8 +1,8 @@
 import boto3  # type: ignore
 import os
 
+from .. import beancount
 from ..base import BaseStorage, ValidationError
-from ..beancount import from_file
 from bdantic import models
 from pathlib import Path
 from pydantic import BaseModel
@@ -41,8 +41,7 @@ class S3Storage(BaseStorage):
         Path(self.settings.work_dir).mkdir(parents=True, exist_ok=True)
         for object in self.bucket.objects.all():
             self._download(object.key)
-
-        return from_file(self.settings.entry_path())
+        return beancount.from_file(self.settings.entry_path())
 
     @staticmethod
     def validate(settings) -> None:
