@@ -65,6 +65,10 @@ class BaseStorage:
         pass
 
     @staticmethod
+    def changed(bf: models.BeancountFile) -> bool:
+        pass
+
+    @staticmethod
     def validate(settings: Settings) -> None:
         """Validates that the provided settings are complete.
 

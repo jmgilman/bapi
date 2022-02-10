@@ -60,6 +60,9 @@ def get_beanfile() -> models.BeancountFile:
     Returns:
         The loaded `BeancountFile` instance.
     """
+    if settings.cache_invalidated():
+        del settings.beanfile
+
     return settings.beanfile
 
 

@@ -56,6 +56,11 @@ class RedisStorage(BaseStorage):
                 loader.load_string(contents.decode("utf-8"))
             )
 
+    @classmethod
+    def changed(cls, _: models.BeancountFile) -> bool:
+        # TODO: Add support for cache invalidation
+        return False
+
     @staticmethod
     def validate(settings) -> None:
         if settings.redis is None:

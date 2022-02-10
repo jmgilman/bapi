@@ -73,12 +73,28 @@ class Settings(BaseSettings):
         perform whatever operation is necessary to return a `BeancountFile`.
 
         This property is configured to be cached to avoid loading the ledger
-        more than once since it's a very expensive operation.
+        more than once since it's a very expensive operation. The dependency
+        for fetching the current `BeancountFile` instance is responsible for
+        handling the invalidation of this cache.
 
         Returns:
             A new `BeancountFile` instance with the configured ledger file.
         """
         return self._storage_providers[self.storage](self).load()
+
+    def cache_invalidated(self) -> bool:
+        """Returns whether the `beanfile` property has been invalidated.
+
+        Each storage provider implements a `changed()` static method which
+        accepts a `BeancountFile` and returns whether or not it has changed
+        since the `load()` method was called on the provider. This method
+        simply calls the configured storage provider's `changed()` method and
+        returns the result.
+
+        Returns:
+            True if the cache is invalidated, False otherwise
+        """
+        return self._storage_providers[self.storage].changed(self.beanfile)
 
     def entry_path(self):
         """Returns the full path to the entrypoint beancount file.

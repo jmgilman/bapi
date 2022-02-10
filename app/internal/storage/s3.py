@@ -43,6 +43,11 @@ class S3Storage(BaseStorage):
             self._download(object.key)
         return beancount.from_file(self.settings.entry_path())
 
+    @classmethod
+    def changed(cls, _: models.BeancountFile) -> bool:
+        # TODO: Add support for cache invalidation
+        return False
+
     @staticmethod
     def validate(settings) -> None:
         if settings.s3 is None:
