@@ -1,6 +1,6 @@
 import redis
 
-from ..base import BaseStorage, ValidationError
+from ..base import BaseStorage
 from beancount import loader
 from bdantic import models
 from pydantic import BaseModel

@@ -1,6 +1,7 @@
 import enum
 
-from .internal.settings import lock, settings
+from .internal.cache import lock
+from .internal.settings import settings
 from .internal.search import search_accounts, search_directives, Directives
 from bdantic import models
 from bdantic.types import ModelDirective
