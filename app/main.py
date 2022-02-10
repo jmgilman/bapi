@@ -1,9 +1,11 @@
+import asyncio
+
 from .dependencies import authenticated
 from fastapi import FastAPI, Depends
 from fastapi.responses import JSONResponse
 from jmespath.exceptions import LexerError  # type: ignore
 from .routers import account, directive, query
-from .internal.settings import Auth, settings
+from .internal.settings import Auth, settings, CacheInvalidator
 
 app = FastAPI(
     title="Beancount API",
@@ -19,13 +21,16 @@ possible in responses in order to maximize integration with other platforms.
 
 
 @app.on_event("startup")
-def startup():
+async def startup():
     """Startup handler for configuring dependencies."""
     # Validate settings
     settings.validate()
 
     # Force caching on the beancount file
     settings.beanfile
+
+    # Setup cache invalidator
+    asyncio.create_task(CacheInvalidator().main())
 
     # Setup authentication
     if settings.auth != Auth.none:

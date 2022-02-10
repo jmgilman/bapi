@@ -5,6 +5,7 @@ import re
 
 from app.dependencies import get_beanfile
 from app.main import app
+from app.internal.settings import settings
 from beancount import loader
 from bdantic import models
 from fastapi.testclient import TestClient
@@ -17,6 +18,8 @@ def client() -> TestClient:
     Returns:
         A new `TestClient` instance.
     """
+    settings.work_dir = os.path.dirname(os.path.realpath(__file__))
+    settings.entrypoint = "static.beancount"
     return TestClient(app)
 
 

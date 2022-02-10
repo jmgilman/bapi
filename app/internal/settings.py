@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from .base import BaseAuth, BaseStorage
@@ -5,6 +6,7 @@ from .auth.jwt import JWTAuth, JWTConfig
 from .storage.local import LocalStorage
 from .storage.redis import RedisConfig, RedisStorage
 from .storage.s3 import S3Config, S3Storage
+from anyio import Lock
 from enum import Enum
 from bdantic import models
 from functools import cached_property
@@ -73,9 +75,9 @@ class Settings(BaseSettings):
         perform whatever operation is necessary to return a `BeancountFile`.
 
         This property is configured to be cached to avoid loading the ledger
-        more than once since it's a very expensive operation. The dependency
-        for fetching the current `BeancountFile` instance is responsible for
-        handling the invalidation of this cache.
+        more than once since it's a very expensive operation. The cache is
+        automatically invalidated by the `CacheInvalidator` which runs a
+        background task that constantly checks for changes.
 
         Returns:
             A new `BeancountFile` instance with the configured ledger file.
@@ -122,3 +124,26 @@ class Settings(BaseSettings):
 
 # Load settings
 settings: Settings = Settings()
+
+# Ensures requests wait during a cache reload
+lock = Lock()
+
+
+class CacheInvalidator:
+    """A background task for automatically invalidating the cache."""
+
+    async def main(self, wait_time=5):
+        """A async task which checks and refreshes the `BeancountFile` cache.
+
+        Args:
+            wait_time: The time (in seconds) to wait between checks.
+        """
+        while True:
+            if settings.cache_invalidated():
+                async with lock:
+                    print("Cache invalidated")
+                    del settings.beanfile
+                    settings.beanfile
+
+            print("Sleeping")
+            await asyncio.sleep(wait_time)

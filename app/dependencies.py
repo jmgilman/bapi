@@ -1,6 +1,6 @@
 import enum
 
-from .internal.settings import settings
+from .internal.settings import lock, settings
 from .internal.search import search_accounts, search_directives, Directives
 from bdantic import models
 from bdantic.types import ModelDirective
@@ -54,16 +54,14 @@ _TYPE_MAP: Dict[DirectiveType, Type[ModelDirective]] = {
 }
 
 
-def get_beanfile() -> models.BeancountFile:
+async def get_beanfile() -> models.BeancountFile:
     """Returns the loaded `BeancountFile` instance.
 
     Returns:
         The loaded `BeancountFile` instance.
     """
-    if settings.cache_invalidated():
-        del settings.beanfile
-
-    return settings.beanfile
+    async with lock:
+        return settings.beanfile
 
 
 async def authenticated(request: Request) -> None:
