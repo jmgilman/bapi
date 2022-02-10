@@ -50,7 +50,7 @@ tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>
 
 [[package]]
 name = "bdantic"
-version = "0.2.3"
+version = "0.2.4"
 description = "A package for extending beancount with pydantic"
 category = "main"
 optional = false
@@ -1094,7 +1094,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "cd7986445196c315b7b45f3bbf7ffe4a1057c9ab6813d5808e1d1703a26e652a"
+content-hash = "9225b167db8c4f15fa051649321d96ae10ac30afd7fba2241c1a58eff3360e74"
 
 [metadata.files]
 anyio = [
@@ -1114,8 +1114,8 @@ attrs = [
     {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
 ]
 bdantic = [
-    {file = "bdantic-0.2.3-py3-none-any.whl", hash = "sha256:c03ce848fb3b81ffc96329e8aaf585d37c2db4456ab54bd73fccb9ee46715c4a"},
-    {file = "bdantic-0.2.3.tar.gz", hash = "sha256:c465d1f9d855995a6cd24a3b13fbed8917b5195c4da61fe496925dc58d931eb4"},
+    {file = "bdantic-0.2.4-py3-none-any.whl", hash = "sha256:f26e0ba9524fc4bd6b61babca47ea5a016a0458ac6b16eeefd45be0c6f1a4d8d"},
+    {file = "bdantic-0.2.4.tar.gz", hash = "sha256:76c5dc6cd4cbe2632acd0e1f327bc7ca21b8aee850ea679879b602c888887f95"},
 ]
 beancount = [
     {file = "beancount-2.3.4-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:3c9e8244bfa4d48b24cdfe3eb6b62bf9437ede4ab93da5fa310864414e36bb58"},
