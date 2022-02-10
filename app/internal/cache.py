@@ -13,7 +13,7 @@ class CacheInvalidator:
     def __init__(self, settings: Settings):
         self.settings = settings
 
-    async def main(self, wait_time=5):
+    async def main(self):
         """A async task which checks and refreshes the `BeancountFile` cache.
 
         Args:
@@ -22,9 +22,7 @@ class CacheInvalidator:
         while True:
             if self.settings.cache_invalidated():
                 async with lock:
-                    print("Cache invalidated")
                     del self.settings.beanfile
                     self.settings.beanfile
 
-            print("Sleeping")
-            await asyncio.sleep(wait_time)
+            await asyncio.sleep(self.settings.cache_interval)

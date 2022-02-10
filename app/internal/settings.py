@@ -33,15 +33,17 @@ class Settings(BaseSettings):
     Attributes:
         entrypoint: The filename of the main ledger file to parse.
         work_dir: The local working directory where files will be downloaded.
-        storage: Where to find Beancount files
-        auth: Type of authentication to use on endpoints
-        jwt: Settings for configuring JWT authentication
-        redis: Settings for configuring Redis storage
-        s3: Settings for configuring Amazon S3 storage
+        cache_interval: Seconds to wait before checking for data changes.
+        storage: Where to find Beancount files.
+        auth: Type of authentication to use on endpoints.
+        jwt: Settings for configuring JWT authentication.
+        redis: Settings for configuring Redis storage.
+        s3: Settings for configuring Amazon S3 storage.
     """
 
     entrypoint: str = "main.beancount"
     work_dir: str = "/tmp/bean"
+    cache_interval: int = 5
     storage: Storage = Storage.local
     auth: Auth = Auth.none
     jwt: Optional[JWTConfig] = None
