@@ -33,18 +33,25 @@ class S3Storage(BaseStorage):
 
     bucket: Any = None
 
+    def __init__(self, settings):
+        super().__init__(settings)
+
+        if not self.settings.s3.bucket:
+            raise ValidationError(
+                "Must set the S3 bucket environment variable"
+            )
+
+        self.bucket = boto3.resource("s3").Bucket(self.settings.s3.bucket)
+
     def load(self) -> models.BeancountFile:
         assert self.settings.s3 is not None
-        if not self.bucket:
-            self.bucket = boto3.resource("s3").Bucket(self.settings.s3.bucket)
 
         Path(self.settings.work_dir).mkdir(parents=True, exist_ok=True)
         for object in self.bucket.objects.all():
             self._download(object.key)
         return beancount.from_file(self.settings.entry_path())
 
-    @classmethod
-    def changed(cls, _: models.BeancountFile) -> bool:
+    def changed(self, _: models.BeancountFile) -> bool:
         # TODO: Add support for cache invalidation
         return False
 

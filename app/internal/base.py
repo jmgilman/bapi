@@ -64,19 +64,14 @@ class BaseStorage:
         """
         pass
 
-    @staticmethod
-    def changed(bf: models.BeancountFile) -> bool:
-        pass
-
-    @staticmethod
-    def validate(settings: Settings) -> None:
-        """Validates that the provided settings are complete.
+    def changed(self, bf: models.BeancountFile) -> bool:
+        """Returns if the underlying storage has changed.
 
         Args:
-            settings: The settings to validate.
+            bf: The `BeancountFile` instance used to compare for changes.
 
-        Raises:
-            ValidationError: If the given settings fail to validate.
+        Returns:
+            True if a change is detected, False otherwise.
         """
         pass
 

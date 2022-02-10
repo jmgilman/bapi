@@ -8,7 +8,9 @@ from unittest.mock import Mock, patch
 @pytest.fixture
 def mock_settings():
     return Settings(
-        entrypoint="test.beancount", s3=S3Config(bucket=""), work_dir="/run"
+        entrypoint="test.beancount",
+        s3=S3Config(bucket="test"),
+        work_dir="/run",
     )
 
 

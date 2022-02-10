@@ -12,6 +12,7 @@ class RedisConfig(BaseModel):
     Attributes:
         key: The key to load the data from
         cached: Whether the data is a pickled cache or raw ledger contents
+        channel: Channel to listen to for reloads
         host: The redis database host
         port: The redis database port
         password: The redis database password
@@ -20,6 +21,7 @@ class RedisConfig(BaseModel):
 
     key: str = "beancount"
     cached: bool = False
+    channel: str = "beancount"
     host: str = "localhost"
     port: int = 6379
     password: str = ""
@@ -29,24 +31,30 @@ class RedisConfig(BaseModel):
 class RedisStorage(BaseStorage):
     """Provides an interface for loading ledgers stored in Redis."""
 
-    def load(self) -> models.BeancountFile:
-        assert self.settings.redis is not None
-        client = redis.Redis(
+    def __init__(self, settings):
+        super().__init__(settings)
+
+        self.client = redis.Redis(
             host=self.settings.redis.host,
             port=self.settings.redis.port,
             password=self.settings.redis.password,
             ssl=self.settings.redis.ssl,
         )
 
+    def load(self) -> models.BeancountFile:
+        assert self.settings.redis is not None
+        self.sub = self.client.pubsub()
+        self.sub.subscribe(self.settings.redis.channel)
+
         if self.settings.redis.cached:
-            cached = client.get(self.settings.redis.key)
+            cached = self.client.get(self.settings.redis.key)
             if not cached:
                 raise Exception(
                     "Redis returned no data with the configured key"
                 )
             return models.BeancountFile.decompress(cached)
         else:
-            contents = client.get(self.settings.redis.key)
+            contents = self.client.get(self.settings.redis.key)
             if not contents:
                 raise Exception(
                     "Redis returned no data with the configured key"
@@ -56,12 +64,12 @@ class RedisStorage(BaseStorage):
                 loader.load_string(contents.decode("utf-8"))
             )
 
-    @classmethod
-    def changed(cls, _: models.BeancountFile) -> bool:
-        # TODO: Add support for cache invalidation
-        return False
-
-    @staticmethod
-    def validate(settings) -> None:
-        if settings.redis is None:
-            raise ValidationError("Must set environment variables for Redis")
+    def changed(self, _: models.BeancountFile) -> bool:
+        msg = self.sub.get_message()
+        if msg:
+            if msg["type"] == "message":
+                return True
+            else:
+                return False
+        else:
+            return False

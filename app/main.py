@@ -23,9 +23,6 @@ possible in responses in order to maximize integration with other platforms.
 @app.on_event("startup")
 async def startup():
     """Startup handler for configuring dependencies."""
-    # Validate settings
-    settings.validate()
-
     # Force caching on the beancount file
     settings.beanfile
 

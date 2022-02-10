@@ -10,7 +10,7 @@ from anyio import Lock
 from enum import Enum
 from bdantic import models
 from functools import cached_property
-from pydantic import BaseSettings
+from pydantic import BaseSettings, PrivateAttr
 from typing import Dict, Optional, Type
 
 
@@ -50,6 +50,9 @@ class Settings(BaseSettings):
     redis: Optional[RedisConfig] = None
     s3: Optional[S3Config] = None
 
+    _auth: Optional[BaseAuth] = PrivateAttr(None)
+    _storage: BaseStorage = PrivateAttr()
+
     _auth_providers: Dict[Auth, Type[BaseAuth]] = {Auth.jwt: JWTAuth}
 
     _storage_providers: Dict[Storage, Type[BaseStorage]] = {
@@ -62,6 +65,14 @@ class Settings(BaseSettings):
         env_prefix = "BAPI_"
         env_nested_delimiter = "__"
         keep_untouched = (cached_property,)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        if self.auth is not Auth.none:
+            self._auth = self._auth_providers[self.auth](self)
+
+        self._storage = self._storage_providers[self.storage](self)
 
     @cached_property
     def beanfile(self) -> models.BeancountFile:
@@ -82,7 +93,7 @@ class Settings(BaseSettings):
         Returns:
             A new `BeancountFile` instance with the configured ledger file.
         """
-        return self._storage_providers[self.storage](self).load()
+        return self._storage.load()
 
     def cache_invalidated(self) -> bool:
         """Returns whether the `beanfile` property has been invalidated.
@@ -96,7 +107,7 @@ class Settings(BaseSettings):
         Returns:
             True if the cache is invalidated, False otherwise
         """
-        return self._storage_providers[self.storage].changed(self.beanfile)
+        return self._storage.changed(self.beanfile)
 
     def entry_path(self):
         """Returns the full path to the entrypoint beancount file.
@@ -112,14 +123,15 @@ class Settings(BaseSettings):
         Returns:
             The configured authenitcation provider or None.
         """
-        return self._auth_providers[self.auth](self)
+        return self._auth
 
-    def validate(self):
-        """Validates this settings instance."""
-        if self.auth is not Auth.none:
-            self._auth_providers[self.auth].validate(self)
+    def get_storage(self) -> BaseStorage:
+        """Returns the configured storage provider.
 
-        self._storage_providers[self.storage].validate(self)
+        Returns:
+            The configured storage provider.
+        """
+        return self._storage
 
 
 # Load settings
