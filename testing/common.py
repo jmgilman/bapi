@@ -11,6 +11,7 @@ from bdantic import models
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from functools import lru_cache
+from typing import Dict
 
 
 def client() -> TestClient:
@@ -43,7 +44,7 @@ def fetch_account(account: str) -> str:
     return jmespath.search(filter, js)
 
 
-def load_static_json() -> str:
+def load_static_json() -> Dict:
     """Loads the static.beancount JSON dump.
 
     Returns:
@@ -58,7 +59,7 @@ def load_static_json() -> str:
     )
 
 
-def load_realize_json() -> str:
+def load_realize_json() -> Dict:
     """Loads the static.beancount realization JSON dump.
 
     Returns:

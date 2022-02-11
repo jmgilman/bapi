@@ -164,6 +164,15 @@ def test_directive(client):
         assert response.json() == expected
 
 
+def test_directive_id(client):
+    j = c.load_static_json()
+
+    expected = j[0]
+    response = client.get(f"/directive/id/{expected['id']}")
+
+    assert response.json() == expected
+
+
 def test_directive_syntax(client, syntax: Dict[str, Tuple[Dict, str]]):
     for v in syntax.values():
         response = client.post("/directive/syntax", json=v[0])
