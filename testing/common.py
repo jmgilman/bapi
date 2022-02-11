@@ -1,7 +1,5 @@
 import jmespath  # type: ignore
 import json
-import os
-import re
 
 from app.dependencies import get_beanfile
 from app.routers import account, directive, file, query, realize
@@ -45,49 +43,34 @@ def fetch_account(account: str) -> str:
     return jmespath.search(filter, js)
 
 
+@lru_cache
 def load_file_json() -> Dict:
     """Loads the static.beancount full JSON dump.
 
     Returns:
         The JSON dump.
     """
-    with open("testing/file.json", "r") as f:
-        j = f.read()
-
-    path = os.path.join(os.getcwd(), "testing/static.beancount")
-    return json.loads(
-        re.sub(r"\/[a-zA-z\/]+\/testing\/static.beancount", path, j)
-    )
+    return json.loads(override().json(by_alias=True, exclude_none=True))
 
 
+@lru_cache
 def load_realize_json() -> Dict:
     """Loads the static.beancount realization JSON dump.
 
     Returns:
         The JSON dump.
     """
-    with open("testing/realize.json", "r") as f:
-        j = f.read()
-
-    path = os.path.join(os.getcwd(), "testing/static.beancount")
-    return json.loads(
-        re.sub(r"\/[a-zA-z\/]+\/testing\/static.beancount", path, j)
-    )
+    return json.loads(override().realize().json())
 
 
+@lru_cache
 def load_static_json() -> Dict:
     """Loads the static.beancount directive JSON dump.
 
     Returns:
         The JSON dump.
     """
-    with open("testing/static.json", "r") as f:
-        j = f.read()
-
-    path = os.path.join(os.getcwd(), "testing/static.beancount")
-    return json.loads(
-        re.sub(r"\/[a-zA-z\/]+\/testing\/static.beancount", path, j)
-    )
+    return json.loads(override().entries.json())
 
 
 @lru_cache
