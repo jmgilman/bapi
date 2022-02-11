@@ -42,6 +42,7 @@ more in-depth usage and configuration information.
 | ------------ | --------------------------------------------------------------------------------- |
 | /account     | Fetch, list, and realize all accounts in the ledger                               |
 | /directive   | Fetch all directives by type or generate Beancount syntax for each directive type |
+| /file        | Fetch the entire contents of the ledger file                                      |
 | /query       | Fetch the results of querying the Beancount data using a BQL query                |
 | /realize     | Performs a realization against the ledger                                         |
 
