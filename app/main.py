@@ -1,7 +1,7 @@
 import asyncio
 
 from .dependencies import authenticated
-from .routers import account, directive, query, realize
+from .routers import account, directive, file, query, realize
 from .internal.cache import Cache
 from .internal.settings import Auth, Settings
 from fastapi import FastAPI, Depends
@@ -39,6 +39,7 @@ async def startup():
     # Add routes
     app.include_router(account.router)
     app.include_router(directive.router)
+    app.include_router(file.router)
     app.include_router(query.router)
     app.include_router(realize.router)
 

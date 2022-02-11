@@ -50,7 +50,7 @@ tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>
 
 [[package]]
 name = "bdantic"
-version = "0.2.4"
+version = "0.2.6"
 description = "A package for extending beancount with pydantic"
 category = "main"
 optional = false
@@ -1114,8 +1114,8 @@ attrs = [
     {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
 ]
 bdantic = [
-    {file = "bdantic-0.2.4-py3-none-any.whl", hash = "sha256:f26e0ba9524fc4bd6b61babca47ea5a016a0458ac6b16eeefd45be0c6f1a4d8d"},
-    {file = "bdantic-0.2.4.tar.gz", hash = "sha256:76c5dc6cd4cbe2632acd0e1f327bc7ca21b8aee850ea679879b602c888887f95"},
+    {file = "bdantic-0.2.6-py3-none-any.whl", hash = "sha256:139b3ccb6c9ab64c3d1bb80c5eb32ea1ce07e90194876e93e7007fe7d7339c63"},
+    {file = "bdantic-0.2.6.tar.gz", hash = "sha256:b7a5bf98b5a14851d9c54c844abdd5042772501f32261cfecb8b87c3f9adeb6f"},
 ]
 beancount = [
     {file = "beancount-2.3.4-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:3c9e8244bfa4d48b24cdfe3eb6b62bf9437ede4ab93da5fa310864414e36bb58"},

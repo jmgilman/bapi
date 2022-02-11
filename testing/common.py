@@ -4,7 +4,7 @@ import os
 import re
 
 from app.dependencies import get_beanfile
-from app.routers import account, directive, query, realize
+from app.routers import account, directive, file, query, realize
 
 from beancount import loader
 from bdantic import models
@@ -23,6 +23,7 @@ def client() -> TestClient:
     app = FastAPI()
     app.include_router(account.router)
     app.include_router(directive.router)
+    app.include_router(file.router)
     app.include_router(query.router)
     app.include_router(realize.router)
     app.dependency_overrides[get_beanfile] = override
@@ -44,13 +45,13 @@ def fetch_account(account: str) -> str:
     return jmespath.search(filter, js)
 
 
-def load_static_json() -> Dict:
-    """Loads the static.beancount JSON dump.
+def load_file_json() -> Dict:
+    """Loads the static.beancount full JSON dump.
 
     Returns:
         The JSON dump.
     """
-    with open("testing/static.json", "r") as f:
+    with open("testing/file.json", "r") as f:
         j = f.read()
 
     path = os.path.join(os.getcwd(), "testing/static.beancount")
@@ -66,6 +67,21 @@ def load_realize_json() -> Dict:
         The JSON dump.
     """
     with open("testing/realize.json", "r") as f:
+        j = f.read()
+
+    path = os.path.join(os.getcwd(), "testing/static.beancount")
+    return json.loads(
+        re.sub(r"\/[a-zA-z\/]+\/testing\/static.beancount", path, j)
+    )
+
+
+def load_static_json() -> Dict:
+    """Loads the static.beancount directive JSON dump.
+
+    Returns:
+        The JSON dump.
+    """
+    with open("testing/static.json", "r") as f:
         j = f.read()
 
     path = os.path.join(os.getcwd(), "testing/static.beancount")
