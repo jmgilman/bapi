@@ -1,7 +1,7 @@
 import asyncio
 
 from .dependencies import authenticated
-from .routers import account, directive, query
+from .routers import account, directive, query, realize
 from .internal.cache import Cache
 from .internal.settings import Auth, Settings
 from fastapi import FastAPI, Depends
@@ -40,6 +40,7 @@ async def startup():
     app.include_router(account.router)
     app.include_router(directive.router)
     app.include_router(query.router)
+    app.include_router(realize.router)
 
 
 # Exception handlers

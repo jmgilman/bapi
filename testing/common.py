@@ -4,7 +4,7 @@ import os
 import re
 
 from app.dependencies import get_beanfile
-from app.routers import account, directive, query
+from app.routers import account, directive, query, realize
 
 from beancount import loader
 from bdantic import models
@@ -23,6 +23,7 @@ def client() -> TestClient:
     app.include_router(account.router)
     app.include_router(directive.router)
     app.include_router(query.router)
+    app.include_router(realize.router)
     app.dependency_overrides[get_beanfile] = override
 
     return TestClient(app)
