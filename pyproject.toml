@@ -13,6 +13,7 @@ boto3 = "^1.20.31"
 PyJWT = {extras = ["crypto"], version = "^2.3.0"}
 bdantic = "^0.2.4"
 redis = "^4.1.2"
+cachetools = "^5.0.0"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^21.12b0", allow-prereleases = true}
@@ -25,6 +26,7 @@ mkdocs = "^1.2.3"
 mkdocs-render-swagger-plugin = "^0.0.3"
 mkdocs-material = "^8.1.10"
 boto3-type-annotations-with-docs = "^0.3.1"
+types-cachetools = "^4.2.9"
 
 [tool.black]
 line-length = 79

@@ -1,4 +1,5 @@
 from .. import dependencies as dep
+from .. import models as mod
 from bdantic import models
 from bdantic.types import ModelDirective
 from fastapi import APIRouter, Depends, Path
@@ -18,14 +19,9 @@ router = APIRouter(prefix="/directive", tags=["directives"])
 )
 async def directives(
     beanfile: models.BeancountFile = Depends(dep.get_beanfile),
-    filter=Depends(dep.get_filter),
-    search=Depends(dep.get_search_directives),
-    priority=Depends(dep.get_mutate_priority),
+    mutator: dep.DirectivesMutator = Depends(dep.get_directives_mutator),
 ):
-    if priority == dep.MutatePriority.filter:
-        return search(filter(beanfile.entries))
-    else:
-        return filter(search(beanfile.entries))
+    return mutator.mutate(beanfile.entries)
 
 
 @router.get(
@@ -37,15 +33,15 @@ async def directives(
     response_model_by_alias=True,
 )
 async def directive(
-    directives: models.Directives = Depends(dep.get_directives),
-    filter=Depends(dep.get_filter),
-    search=Depends(dep.get_search_directives),
-    priority=Depends(dep.get_mutate_priority),
+    beanfile: models.BeancountFile = Depends(dep.get_beanfile),
+    directive: mod.DirectiveType = Path(
+        "", description="The type of directive to fetch"
+    ),
+    mutator: dep.DirectivesMutator = Depends(dep.get_directives_mutator),
 ):
-    if priority == dep.MutatePriority.filter:
-        return search(filter(directives))
-    else:
-        return filter(search(directives))
+    typ = mod.get_directive_type(directive)
+    directives = beanfile.entries.by_type(typ)  # type: ignore
+    return mutator.mutate(directives)
 
 
 @router.get(

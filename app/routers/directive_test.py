@@ -1,7 +1,7 @@
 import jmespath  # type: ignore
 import pytest
 
-from ..dependencies import DirectiveType
+from ..models import DirectiveType
 from testing import common as c
 from typing import Dict, Tuple
 

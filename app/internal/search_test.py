@@ -1,12 +1,12 @@
 import pytest
 
-from .search import FullTextSearch, search_accounts, search_directives
+from . import search
 from bdantic import models
 from datetime import date
 
 
 def test_index_entry():
-    fts = FullTextSearch([])
+    fts = search.FullTextSearch([])
     fts._index_entry(1, "some words", "data")
 
     assert fts._entries[1] == "data"
@@ -20,7 +20,7 @@ def test_search():
         ("more words", "data2"),
         ("something else", "data3"),
     ]
-    fts = FullTextSearch(index)
+    fts = search.FullTextSearch(index)
 
     expected = ["data1", "data2"]
     assert fts.search("words") == expected
@@ -44,154 +44,183 @@ def test_search():
     ],
 )
 def test_tokenize(query, expected):
-    fts = FullTextSearch([])
+    fts = search.FullTextSearch([])
 
     tokens = fts._tokenize(query)
     assert tokens == expected
 
 
-def test_search_accounts():
-    accounts = [
-        "Assets:Test",
-        "Assets:Bank:Test",
-        "Expenses:Stuff",
-        "Liabilities:Credit",
-    ]
-
-    fts = search_accounts(accounts)
-    assert fts.search("Assets") == ["Assets:Test", "Assets:Bank:Test"]
-    assert fts.search("Test") == ["Assets:Test", "Assets:Bank:Test"]
-    assert fts.search("Stuff") == ["Expenses:Stuff"]
-    assert fts.search("Liabilities") == ["Liabilities:Credit"]
-
-
 def test_search_directives():
+    e = models.Directives(__root__=[])
+
     # Close
-    d = models.Close(
-        id="",
-        date=date.today(),
-        meta=None,
-        account="Assets:Test",
+    d = models.Directives(
+        __root__=[
+            models.Close(
+                id="",
+                date=date.today(),
+                meta=None,
+                account="Assets:Test",
+            )
+        ]
     )
-    fts = search_directives([d])
-    assert fts.search("Assets:Test") == [d]
-    assert fts.search("Assets") == []
+    fts = search.DirectiveSearcher(d)
+    assert fts.search("Assets:Test") == d
+    assert fts.search("Assets") == e
 
     # Commodity
-    d = models.Commodity(id="", date=date.today(), meta=None, currency="USD")
-    fts = search_directives([d])
-    assert fts.search("USD") == [d]
-    assert fts.search("CAD") == []
+    d = models.Directives(
+        __root__=[
+            models.Commodity(
+                id="", date=date.today(), meta=None, currency="USD"
+            )
+        ]
+    )
+    fts = search.DirectiveSearcher(d)
+    assert fts.search("USD") == d
+    assert fts.search("CAD") == e
 
     # Document
-    d = models.Document(
-        id="",
-        date=date.today(),
-        meta=None,
-        account="Assets:Test",
-        filename="test/file.jpg",
-        tags={"tag1"},
-        links={"link1"},
+    d = models.Directives(
+        __root__=[
+            models.Document(
+                id="",
+                date=date.today(),
+                meta=None,
+                account="Assets:Test",
+                filename="test/file.jpg",
+                tags={"tag1"},
+                links={"link1"},
+            )
+        ]
     )
-    fts = search_directives([d])
-    assert fts.search("Assets:Test") == [d]
-    assert fts.search("file.jpg") == [d]
-    assert fts.search("tag1") == [d]
-    assert fts.search("link1") == [d]
-    assert fts.search("link") == []
+    fts = search.DirectiveSearcher(d)
+    assert fts.search("Assets:Test") == d
+    assert fts.search("file.jpg") == d
+    assert fts.search("tag1") == d
+    assert fts.search("link1") == d
+    assert fts.search("link") == e
 
     # Event
-    d = models.Event(
-        id="",
-        date=date.today(),
-        meta=None,
-        type="test",
-        description="some kind of event",
+    d = models.Directives(
+        __root__=[
+            models.Event(
+                id="",
+                date=date.today(),
+                meta=None,
+                type="test",
+                description="some kind of event",
+            )
+        ]
     )
-    fts = search_directives([d])
-    assert fts.search("test") == [d]
-    assert fts.search("some kind") == [d]
-    assert fts.search("events") == []
+    fts = search.DirectiveSearcher(d)
+    assert fts.search("test") == d
+    assert fts.search("some kind") == d
+    assert fts.search("events") == e
 
     # Note
-    d = models.Note(
-        id="",
-        date=date.today(),
-        meta=None,
-        account="Assets:Test",
-        comment="A test comment",
+    d = models.Directives(
+        __root__=[
+            models.Note(
+                id="",
+                date=date.today(),
+                meta=None,
+                account="Assets:Test",
+                comment="A test comment",
+            )
+        ]
     )
-    fts = search_directives([d])
-    assert fts.search("Assets:Test") == [d]
-    assert fts.search("a test") == [d]
-    assert fts.search("comments") == []
+    fts = search.DirectiveSearcher(d)
+    assert fts.search("Assets:Test") == d
+    assert fts.search("a test") == d
+    assert fts.search("comments") == e
 
     # Open
-    d = models.Open(
-        id="",
-        date=date.today(),
-        meta=None,
-        account="Assets:Test",
-        currencies=["USD", "CAD"],
+    d = models.Directives(
+        __root__=[
+            models.Open(
+                id="",
+                date=date.today(),
+                meta=None,
+                account="Assets:Test",
+                currencies=["USD", "CAD"],
+            )
+        ]
     )
-    fts = search_directives([d])
-    assert fts.search("Assets:Test") == [d]
-    assert fts.search("USD") == [d]
-    assert fts.search("EUR") == []
+    fts = search.DirectiveSearcher(d)
+    assert fts.search("Assets:Test") == d
+    assert fts.search("USD") == d
+    assert fts.search("EUR") == e
 
     # Pad
-    d = models.Pad(
-        id="",
-        date=date.today(),
-        meta=None,
-        account="Assets:Test",
-        source_account="Assets:Test1",
+    d = models.Directives(
+        __root__=[
+            models.Pad(
+                id="",
+                date=date.today(),
+                meta=None,
+                account="Assets:Test",
+                source_account="Assets:Test1",
+            )
+        ]
     )
-    fts = search_directives([d])
-    assert fts.search("Assets:Test") == [d]
-    assert fts.search("Assets:Test1") == [d]
-    assert fts.search("Assets") == []
+    fts = search.DirectiveSearcher(d)
+    assert fts.search("Assets:Test") == d
+    assert fts.search("Assets:Test1") == d
+    assert fts.search("Assets") == e
 
     # Price
-    d = models.Price(
-        id="",
-        date=date.today(),
-        meta=None,
-        currency="USD",
-        amount=models.Amount(number=None, currency=None),
+    d = models.Directives(
+        __root__=[
+            models.Price(
+                id="",
+                date=date.today(),
+                meta=None,
+                currency="USD",
+                amount=models.Amount(number=None, currency=None),
+            )
+        ]
     )
-    fts = search_directives([d])
-    assert fts.search("USD") == [d]
-    assert fts.search("EUR") == []
+    fts = search.DirectiveSearcher(d)
+    assert fts.search("USD") == d
+    assert fts.search("EUR") == e
 
     # Query
-    d = models.Query(
-        id="",
-        date=date.today(),
-        meta=None,
-        name="Test query",
-        query_string="SELECT *",
+    d = models.Directives(
+        __root__=[
+            models.Query(
+                id="",
+                date=date.today(),
+                meta=None,
+                name="Test query",
+                query_string="SELECT *",
+            )
+        ]
     )
-    fts = search_directives([d])
-    assert fts.search("query") == [d]
-    assert fts.search("SELECT") == [d]
-    assert fts.search("queries") == []
+    fts = search.DirectiveSearcher(d)
+    assert fts.search("query") == d
+    assert fts.search("SELECT") == d
+    assert fts.search("queries") == e
 
     # Transaction
-    d = models.Transaction(
-        id="",
-        date=date.today(),
-        meta=None,
-        flag="*",
-        payee="The Store",
-        narration="Bought some things",
-        links={"link1"},
-        tags={"tag1"},
-        postings=[],
+    d = models.Directives(
+        __root__=[
+            models.Transaction(
+                id="",
+                date=date.today(),
+                meta=None,
+                flag="*",
+                payee="The Store",
+                narration="Bought some things",
+                links={"link1"},
+                tags={"tag1"},
+                postings=[],
+            )
+        ]
     )
-    fts = search_directives([d])
-    assert fts.search("store") == [d]
-    assert fts.search("things") == [d]
-    assert fts.search("link1") == [d]
-    assert fts.search("tag1") == [d]
-    assert fts.search("Bought some more things") == []
+    fts = search.DirectiveSearcher(d)
+    assert fts.search("store") == d
+    assert fts.search("things") == d
+    assert fts.search("link1") == d
+    assert fts.search("tag1") == d
+    assert fts.search("Bought some more things") == e

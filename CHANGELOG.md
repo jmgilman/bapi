@@ -9,10 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `/{account}/realize` endpoint for getting an account realization
 - `/directive/id/{id}` endpoint for getting a directive by ID
 - `/file` endpoint for getting the entire ledger contents
-- `/realize` endoint for realizing the entire ledger
 - `filter` query parameter for filtering results with JMESPath
 - `search` query parameter for performing full-text searches
 - In-depth documentation
@@ -25,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tests now use raw JSON dumps for validation
 - Docstrings expanded and updated
 - Integration support for various auth/storage backends was improved
-- Most routes changed to be asychronous
+- Most routes changed to be asynchronous
 
 ## [0.2.0] - 2022-01-24
 

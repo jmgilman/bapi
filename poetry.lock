@@ -972,6 +972,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "types-cachetools"
+version = "4.2.9"
+description = "Typing stubs for cachetools"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "types-redis"
 version = "4.1.15"
 description = "Typing stubs for redis"
@@ -1094,7 +1102,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "9225b167db8c4f15fa051649321d96ae10ac30afd7fba2241c1a58eff3360e74"
+content-hash = "29dad8890fd2bb995d2de508bd708821f96c8e37bab9278cd0d4a99fff0e2224"
 
 [metadata.files]
 anyio = [
@@ -1776,6 +1784,10 @@ toml = [
 tomli = [
     {file = "tomli-1.2.3-py3-none-any.whl", hash = "sha256:e3069e4be3ead9668e21cb9b074cd948f7b3113fd9c8bba083f48247aab8b11c"},
     {file = "tomli-1.2.3.tar.gz", hash = "sha256:05b6166bff487dc068d322585c7ea4ef78deed501cc124060e0f238e89a9231f"},
+]
+types-cachetools = [
+    {file = "types-cachetools-4.2.9.tar.gz", hash = "sha256:4ac4b7866da8d3f750413a3e91809c2bf6124aa920ef6dc32c5df2d84a53585c"},
+    {file = "types_cachetools-4.2.9-py3-none-any.whl", hash = "sha256:da18b1acbc4a03ed3ce8f6ad4d70ad8ca31f542c205cb45ceb524d2ddd544c28"},
 ]
 types-redis = [
     {file = "types-redis-4.1.15.tar.gz", hash = "sha256:651daaa4522f9067629cc278ccfc40c87bfba5c1f780721cd103b5150683157a"},

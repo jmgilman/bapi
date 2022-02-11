@@ -1,4 +1,3 @@
-import hashlib
 import os
 import redis
 import sys

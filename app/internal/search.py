@@ -1,10 +1,14 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
 import re
 import string
 
-from beancount.core import data
 from bdantic import models
 from bdantic.types import ModelDirective
-from typing import Any, Dict, List, Set, Tuple, Union
+from typing import Any, Dict, Generic, List, Set, Tuple, TypeVar
+
+T = TypeVar("T")
 
 
 class FullTextSearch:
@@ -27,7 +31,6 @@ class FullTextSearch:
         """
         self._entries: Dict[int, Any] = {}
         self._index: Dict[str, Set[int]] = {}
-
         for eid, entry in enumerate(index):
             self._index_entry(eid, entry[0], entry[1])
 
@@ -86,78 +89,101 @@ class FullTextSearch:
         return tokens
 
 
-Directive = Union[data.Directive, ModelDirective]
-Directives = Union[List[Directive], models.Directives]
+@dataclass
+class Searcher(Generic[T]):
+    """A class which can perform a full text search across data
 
-
-def search_accounts(accounts: List[str]) -> FullTextSearch:
-    """Returns a FullTextSearch instance for the given list of accounts.
-
-    Args:
-        accounts: A list of account names to search across.
-
-    Returns:
-        A new FullTextSearch instance configured with the account names.
+    Attributes:
+        data: The data to search
     """
-    return FullTextSearch([(a.replace(":", " "), a) for a in accounts])
+
+    data: T
+
+    def index(self) -> List[Tuple[str, T]]:
+        """Creates a searchable index from the configured data.
+
+        Returns:
+            A searchable index.
+        """
+        pass
+
+    def search(self, query: str) -> T:
+        """Searches across the configured data and returns the result.
+
+        Args:
+            query: The query string to use for searching
+
+        Returns:
+            The search result.
+        """
+        pass
 
 
-def search_directives(directives: Directives) -> FullTextSearch:
-    """Returns a FullTextSearch instance for the given list of directives.
+@dataclass
+class DirectiveSearcher(Searcher):
+    """A class which can create a searchable index from a list of directives.
 
-    Args:
-        directives: A list of directives to search across.
-
-    Returns:
-        A new FullTextSearch instance configured with the directives.
+    Attributes:
+        data: The list of directives to index.
     """
-    index: List[Tuple[str, Directive]] = []
-    for d in directives:
-        if isinstance(d, data.Balance) or isinstance(d, models.Balance):
-            index.append((d.account, d))
-        elif isinstance(d, data.Close) or isinstance(d, models.Close):
-            index.append((d.account, d))
-        elif isinstance(d, data.Commodity) or isinstance(d, models.Commodity):
-            index.append((d.currency, d))
-        elif isinstance(d, data.Custom) or isinstance(d, models.Custom):
-            continue
-        elif isinstance(d, data.Document) or isinstance(d, models.Document):
-            s = d.account + " " + d.filename.replace("/", " ")
-            if d.links:
-                s += " " + " ".join(d.links)
-            if d.tags:
-                s += " " + " ".join(d.tags)
-            index.append((s, d))
-        elif isinstance(d, data.Event) or isinstance(d, models.Event):
-            index.append((d.type + " " + d.description, d))
-        elif isinstance(d, data.Note) or isinstance(d, models.Note):
-            index.append((d.account + " " + d.comment, d))
-        elif isinstance(d, data.Open) or isinstance(d, models.Open):
-            s = d.account
-            if d.currencies:
-                s += " " + " ".join(d.currencies)
-            index.append((s, d))
-        elif isinstance(d, data.Pad) or isinstance(d, models.Pad):
-            index.append(
-                (
-                    d.account + " " + d.source_account,
-                    d,
+
+    data: models.Directives
+
+    def __init__(self, data: models.Directives):
+        self.data = data
+
+    def search(self, query: str) -> models.Directives:
+        return models.Directives(
+            __root__=FullTextSearch(self.index()).search(query)
+        )
+
+    def index(self):
+        index: List[Tuple[str, ModelDirective]] = []
+
+        for d in self.data:
+            if isinstance(d, models.Balance):
+                index.append((d.account, d))
+            elif isinstance(d, models.Close):
+                index.append((d.account, d))
+            elif isinstance(d, models.Commodity):
+                index.append((d.currency, d))
+            elif isinstance(d, models.Custom):
+                continue
+            elif isinstance(d, models.Document):
+                s = d.account + " " + d.filename.replace("/", " ")
+                if d.links:
+                    s += " " + " ".join(d.links)
+                if d.tags:
+                    s += " " + " ".join(d.tags)
+                index.append((s, d))
+            elif isinstance(d, models.Event):
+                index.append((d.type + " " + d.description, d))
+            elif isinstance(d, models.Note):
+                index.append((d.account + " " + d.comment, d))
+            elif isinstance(d, models.Open):
+                s = d.account
+                if d.currencies:
+                    s += " " + " ".join(d.currencies)
+                index.append((s, d))
+            elif isinstance(d, models.Pad):
+                index.append(
+                    (
+                        d.account + " " + d.source_account,
+                        d,
+                    )
                 )
-            )
-        elif isinstance(d, data.Price) or isinstance(d, models.Price):
-            index.append((d.currency, d))
-        elif isinstance(d, data.Query) or isinstance(d, models.Query):
-            index.append((d.name + " " + d.query_string, d))
-        elif isinstance(d, data.Transaction) or isinstance(
-            d, models.Transaction
-        ):
-            s = d.narration
-            if d.payee:
-                s += " " + d.payee
-            if d.links:
-                s += " " + " ".join(d.links)
-            if d.tags:
-                s += " " + " ".join(d.tags)
-            index.append((s, d))
+            elif isinstance(d, models.Price):
+                index.append((d.currency, d))
+            elif isinstance(d, models.Query):
+                index.append((d.name + " " + d.query_string, d))
+            elif isinstance(d, models.Transaction):
+                s = d.narration
+                if d.payee:
+                    s += " " + d.payee
+                if d.links:
+                    s += " " + " ".join(d.links)
+                if d.tags:
+                    s += " " + " ".join(d.tags)
+                index.append((s, d))
 
-    return FullTextSearch(index)
+        return index

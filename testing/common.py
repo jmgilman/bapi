@@ -2,7 +2,7 @@ import jmespath  # type: ignore
 import json
 
 from app.dependencies import get_beanfile
-from app.routers import account, directive, file, query, realize
+from app.routers import account, directive, file, query
 
 from beancount import loader
 from bdantic import models
@@ -23,7 +23,6 @@ def client() -> TestClient:
     app.include_router(directive.router)
     app.include_router(file.router)
     app.include_router(query.router)
-    app.include_router(realize.router)
     app.dependency_overrides[get_beanfile] = override
 
     return TestClient(app)

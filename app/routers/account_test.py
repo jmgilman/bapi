@@ -15,12 +15,11 @@ def client():
 
 
 def test_accounts(client):
-    j = c.load_static_json()
-    expected = sorted(jmespath.search("[?ty == 'Open'].account", j))
+    expected = c.load_file_json()
 
     response = client.get("/account")
     assert response.status_code == 200
-    assert sorted(response.json()) == expected
+    assert response.json() == expected["accounts"]
 
 
 def test_account(account, client):
@@ -62,17 +61,6 @@ def test_balance(account, client):
     assert response.json() == expected_balance
 
     response = client.get(f"/account/{account}123/balance")
-    assert response.status_code == 404
-
-
-def test_realize(account, client):
-    expected = c.fetch_account(account)
-
-    response = client.get(f"/account/{account}/realize")
-    assert response.status_code == 200
-    assert response.json() == expected
-
-    response = client.get(f"/account/{account}123/realize")
     assert response.status_code == 404
 
 

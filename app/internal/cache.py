@@ -1,16 +1,14 @@
 import asyncio
-from dataclasses import dataclass
+import cachetools
 
 from .base import BaseStorage
 from anyio import Lock
 from bdantic import models
-
-# Ensures requests wait during a cache reload
-lock = Lock()
+from dataclasses import dataclass
 
 
 @dataclass
-class Cache:
+class Cache(cachetools.Cache):
     """A cache for storing a `BeancountFile`.
 
     This class provides global access to a cached instance of `BeancountFile`
@@ -25,27 +23,32 @@ class Cache:
     """
 
     interval: int
+    lock: Lock
     storage: BaseStorage
     _value: models.BeancountFile
 
     def __init__(self, storage: BaseStorage, interval: int = 5):
+        super().__init__(50)
         self.storage = storage
         self.interval = interval
-        self._value = storage.load()
+        self.lock = Lock()
 
-    def get(self) -> models.BeancountFile:
-        """Fetches the `BeancountInstance` from the cache.
+    async def beanfile(self) -> models.BeancountFile:
+        async with self.lock:
+            return self["beanfile"]
 
-        Returns:
-            The cached `BeancountFile` instance.
-        """
-        return self._value
+    async def refresh(self):
+        async with self.lock:
+            self["beanfile"] = self.storage.load()
 
-    async def invalidator(self):
-        """An async loop for invalidating the cache on storage changes."""
+    async def background(self):
+        """An async loop for managing the cache."""
+        # Prime the cache
+        await self.refresh()
+
         while True:
-            if self.storage.changed(self._value):
-                async with lock:
-                    self._value = self.storage.load()
+            # Check for state changes
+            if self.storage.changed(self["beanfile"]):
+                await self.refresh()
 
             await asyncio.sleep(self.interval)
