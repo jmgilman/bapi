@@ -1,7 +1,6 @@
 import enum
 
 from .internal.cache import lock
-from .internal.settings import settings
 from .internal.search import search_accounts, search_directives, Directives
 from bdantic import models
 from bdantic.types import ModelDirective
@@ -55,14 +54,14 @@ _TYPE_MAP: Dict[DirectiveType, Type[ModelDirective]] = {
 }
 
 
-async def get_beanfile() -> models.BeancountFile:
+async def get_beanfile(request: Request) -> models.BeancountFile:
     """Returns the loaded `BeancountFile` instance.
 
     Returns:
         The loaded `BeancountFile` instance.
     """
     async with lock:
-        return settings.beanfile
+        return request.app.state.cache.get()
 
 
 async def authenticated(request: Request) -> None:
@@ -71,7 +70,7 @@ async def authenticated(request: Request) -> None:
     Raises:
         HTTPException: If the configured authentication handler fails.
     """
-    auth = settings.get_auth()
+    auth = request.app.state.settings.get_auth()
     assert auth is not None
 
     if not auth.authenticate(request):

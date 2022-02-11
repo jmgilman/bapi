@@ -6,7 +6,6 @@ from .storage.local import LocalStorage
 from .storage.redis import RedisConfig, RedisStorage
 from .storage.s3 import S3Config, S3Storage
 from enum import Enum
-from bdantic import models
 from functools import cached_property
 from pydantic import BaseSettings, PrivateAttr
 from typing import Dict, Optional, Type
@@ -74,41 +73,6 @@ class Settings(BaseSettings):
 
         self._storage = self._storage_providers[self.storage](self)
 
-    @cached_property
-    def beanfile(self) -> models.BeancountFile:
-        """Returns the `BeancountFile` instance for the configured ledger.
-
-        How and where the beancount ledger is loaded from is determined by the
-        environment variables set during runtime. By default the storage is set
-        to local and will attempt to load the contents of the file located at
-        `{settings.work_dir}/{settings.entrypoint}`. Otherwise, the storage
-        provider configured is loaded and passed an instance of the settings to
-        perform whatever operation is necessary to return a `BeancountFile`.
-
-        This property is configured to be cached to avoid loading the ledger
-        more than once since it's a very expensive operation. The cache is
-        automatically invalidated by the `CacheInvalidator` which runs a
-        background task that constantly checks for changes.
-
-        Returns:
-            A new `BeancountFile` instance with the configured ledger file.
-        """
-        return self._storage.load()
-
-    def cache_invalidated(self) -> bool:
-        """Returns whether the `beanfile` property has been invalidated.
-
-        Each storage provider implements a `changed()` static method which
-        accepts a `BeancountFile` and returns whether or not it has changed
-        since the `load()` method was called on the provider. This method
-        simply calls the configured storage provider's `changed()` method and
-        returns the result.
-
-        Returns:
-            True if the cache is invalidated, False otherwise
-        """
-        return self._storage.changed(self.beanfile)
-
     def entry_path(self):
         """Returns the full path to the entrypoint beancount file.
 
@@ -132,7 +96,3 @@ class Settings(BaseSettings):
             The configured storage provider.
         """
         return self._storage
-
-
-# Load settings
-settings: Settings = Settings()

@@ -2,8 +2,8 @@ import asyncio
 
 from .dependencies import authenticated
 from .routers import account, directive, query
-from .internal.cache import CacheInvalidator
-from .internal.settings import Auth, settings
+from .internal.cache import Cache
+from .internal.settings import Auth, Settings
 from fastapi import FastAPI, Depends
 from fastapi.responses import JSONResponse
 from jmespath.exceptions import LexerError  # type: ignore
@@ -24,14 +24,16 @@ possible in responses in order to maximize integration with other platforms.
 @app.on_event("startup")
 async def startup():
     """Startup handler for configuring dependencies."""
-    # Force caching on the beancount file
-    settings.beanfile
+    app.state.settings = Settings()
+    app.state.cache = Cache(
+        app.state.settings.get_storage(), app.state.settings.cache_interval
+    )
 
     # Setup cache invalidator
-    asyncio.create_task(CacheInvalidator(settings).main())
+    asyncio.create_task(app.state.cache.invalidator())
 
     # Setup authentication
-    if settings.auth != Auth.none:
+    if app.state.settings.auth != Auth.none:
         app.router.dependencies.append(Depends(authenticated))
 
     # Add routes

@@ -1,28 +1,51 @@
 import asyncio
+from dataclasses import dataclass
 
-from .settings import Settings
+from .base import BaseStorage
 from anyio import Lock
+from bdantic import models
 
 # Ensures requests wait during a cache reload
 lock = Lock()
 
 
-class CacheInvalidator:
-    """A background task for automatically invalidating the cache."""
+@dataclass
+class Cache:
+    """A cache for storing a `BeancountFile`.
 
-    def __init__(self, settings: Settings):
-        self.settings = settings
+    This class provides global access to a cached instance of `BeancountFile`
+    which can be reused across requests. An invalidator method is automatically
+    run on startup and is responsible for invalidating request when the
+    underlying storage changes.
 
-    async def main(self):
-        """A async task which checks and refreshes the `BeancountFile` cache.
+    Attributes:
+        interval: Frequency that the invalidator should check the storage.
+        storage: The underlying storage being used.
 
-        Args:
-            wait_time: The time (in seconds) to wait between checks.
+    """
+
+    interval: int
+    storage: BaseStorage
+    _value: models.BeancountFile
+
+    def __init__(self, storage: BaseStorage, interval: int = 5):
+        self.storage = storage
+        self.interval = interval
+        self._value = storage.load()
+
+    def get(self) -> models.BeancountFile:
+        """Fetches the `BeancountInstance` from the cache.
+
+        Returns:
+            The cached `BeancountFile` instance.
         """
-        while True:
-            if self.settings.cache_invalidated():
-                async with lock:
-                    del self.settings.beanfile
-                    self.settings.beanfile
+        return self._value
 
-            await asyncio.sleep(self.settings.cache_interval)
+    async def invalidator(self):
+        """An async loop for invalidating the cache on storage changes."""
+        while True:
+            if self.storage.changed(self._value):
+                async with lock:
+                    self._value = self.storage.load()
+
+            await asyncio.sleep(self.interval)

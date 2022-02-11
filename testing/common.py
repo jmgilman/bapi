@@ -4,10 +4,11 @@ import os
 import re
 
 from app.dependencies import get_beanfile
-from app.main import app
-from app.internal.settings import settings
+from app.routers import account, directive, query
+
 from beancount import loader
 from bdantic import models
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from functools import lru_cache
 
@@ -18,8 +19,12 @@ def client() -> TestClient:
     Returns:
         A new `TestClient` instance.
     """
-    settings.work_dir = os.path.dirname(os.path.realpath(__file__))
-    settings.entrypoint = "static.beancount"
+    app = FastAPI()
+    app.include_router(account.router)
+    app.include_router(directive.router)
+    app.include_router(query.router)
+    app.dependency_overrides[get_beanfile] = override
+
     return TestClient(app)
 
 
@@ -73,8 +78,3 @@ def override():
     return models.BeancountFile.parse(
         loader.load_file("testing/static.beancount")
     )
-
-
-def setup():
-    """Overrides the get_beanfile dependency to use the test file."""
-    app.dependency_overrides[get_beanfile] = override
