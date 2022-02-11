@@ -388,15 +388,15 @@ wil enable it for all endpoints - there's not currently a way to individually
 control authentication (PR's are welcome!).</p>
 <h2 id="configuration">Configuration</h2>
 <p>To enable JWT authentication set the following environment variable:</p>
-<pre><code class="language-shell">export BAPI_AUTH=&quot;jwt&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">export</span> <span class="nv">BAPI_AUTH</span><span class="o">=</span><span class="s2">&quot;jwt&quot;</span>
+</code></pre></div>
 <p>The remaining configuration is dependent on your individual setup. The following
 environment variables need to be configured:</p>
-<pre><code class="language-shell">export BAPI_JWT__ALGORITHMS=&quot;RS256&quot; # Type of encryption algorithms allowed
-export BAPI_JWT__AUDIENCE=&quot;https://my.api.io&quot; # JWT audience
-export BAPI_JWT__JWKS=&quot;https://domain.us.auth0.com/.well-known/jwks.json&quot; # JWKS endpoint
-export BAPI_JWT__ISSUER=&quot;https://domain.us.auth0.com/&quot; # Token issuer
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span> <span class="nv">BAPI_JWT__ALGORITHMS</span><span class="o">=</span><span class="s2">&quot;RS256&quot;</span> <span class="c1"># Type of encryption algorithms allowed</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">export</span> <span class="nv">BAPI_JWT__AUDIENCE</span><span class="o">=</span><span class="s2">&quot;https://my.api.io&quot;</span> <span class="c1"># JWT audience</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nb">export</span> <span class="nv">BAPI_JWT__JWKS</span><span class="o">=</span><span class="s2">&quot;https://domain.us.auth0.com/.well-known/jwks.json&quot;</span> <span class="c1"># JWKS endpoint</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nb">export</span> <span class="nv">BAPI_JWT__ISSUER</span><span class="o">=</span><span class="s2">&quot;https://domain.us.auth0.com/&quot;</span> <span class="c1"># Token issuer</span>
+</code></pre></div>
 <p>The above shows what a configuration might look like for an API being <a href="https://auth0.com/blog/build-and-secure-fastapi-server-with-auth0/">protected
 by Auth0</a>.</p>
 

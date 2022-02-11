@@ -390,17 +390,17 @@ directory.</p>
 authentication data from various sources, see the <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html#environment-variables">docs</a>for more details.</p>
 <h2 id="configuration">Configuration</h2>
 <p>To enable S3 integration set the following environment variable:</p>
-<pre><code class="language-shell">export BAPI_STORAGE=&quot;s3&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">export</span> <span class="nv">BAPI_STORAGE</span><span class="o">=</span><span class="s2">&quot;s3&quot;</span>
+</code></pre></div>
 <p>Additionally, you'll need to instruct the API which bucket to use:</p>
-<pre><code class="language-shell">export BAPI_S3__BUCKET=&quot;my-bucket&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span> <span class="nv">BAPI_S3__BUCKET</span><span class="o">=</span><span class="s2">&quot;my-bucket&quot;</span>
+</code></pre></div>
 <p>Assuming authentication has been configured correctly, the API will
 automatically fetch the entire contents of the S3 bucket to the configured
 <code>BAPI_WORK_DIR</code> folder. Ensure that you update the entrypoint to the location of
 the main ledger file:</p>
-<pre><code class="language-shell">export BAPI_ENTRYPOINT=&quot;main.beancount&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">export</span> <span class="nv">BAPI_ENTRYPOINT</span><span class="o">=</span><span class="s2">&quot;main.beancount&quot;</span>
+</code></pre></div>
 
               
             </article>

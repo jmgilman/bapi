@@ -185,6 +185,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reloading" class="md-nav__link">
+    Reloading
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#environment-variables" class="md-nav__link">
     Environment Variables
   </a>
@@ -373,6 +380,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reloading" class="md-nav__link">
+    Reloading
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#environment-variables" class="md-nav__link">
     Environment Variables
   </a>
@@ -393,24 +407,35 @@
                 
 
 <h1 id="introduction">Introduction</h1>
-<p>The Beancount API is an HTTP API built on
-<a href="https://fastapi.tiangolo.com/">FastAPI</a> and provides programmatic access to a
-<a href="https://beancount.github.io/docs/index.html">Beancount</a> ledger. It is
-<a href="https://www.openapis.org/">OpenAPI</a> compliant (see <a href="api/">API</a>) and provides
+<p>The Beancount API is an HTTP API built on <a href="https://fastapi.tiangolo.com/">FastAPI</a> and provides programmatic
+access to a <a href="https://beancount.github.io/docs/index.html">Beancount</a> ledger. It is <a href="https://www.openapis.org/">OpenAPI</a> compliant and provides
 rich access to the data contained within a ledger.</p>
 <h2 id="usage">Usage</h2>
 <p>The quickest way to deploy the API is via a container:</p>
-<pre><code class="language-shell">docker run \
-    -v $(pwd)/testing/static.beancount:/run/beancount/main.beancount \
-    -p 8080:8080 \
-    ghcr.io/jmgilman/bapi
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker run <span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/testing/static.beancount:/run/beancount/main.beancount <span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    -p <span class="m">8080</span>:8080 <span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    ghcr.io/jmgilman/bapi
+</code></pre></div>
 <p>It can then be queried:</p>
-<pre><code class="language-shell">curl http://localhost:8080/directive
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl http://localhost:8080/directive
+</code></pre></div>
 <p>The API provides several configuration options for securing access as well as
 automatically fetching ledger files from remote sources. See the navigation to
 left for more details.</p>
+<h2 id="reloading">Reloading</h2>
+<p>By default, the beancount data is only loaded and parsed once. The result is
+cached and reused across all future requests. However, the API runs a continuous
+background task that checks with the configured storage provider to determine
+if the underlying data has changed. If a change is detected, the cache is
+invalidated and the data is reloaded.</p>
+<p>This happens outside of the main request context to bring consistency to the
+response times of requests, even when the cache gets invalidated. How often
+this check occurs can be configured in the environment:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">export</span> <span class="nv">BAPI_CACHE_INTERVAL</span><span class="o">=</span><span class="m">5</span> <span class="c1"># Every 5 seconds (default)</span>
+</code></pre></div>
+<p>The method used for detecting changes is dependent on the storage provider. See
+the provider documentation for more information.</p>
 <h2 id="environment-variables">Environment Variables</h2>
 <table>
 <thead>
@@ -430,6 +455,11 @@ left for more details.</p>
 <td>BAPI_WORK_DIR</td>
 <td>/tmp/bean</td>
 <td>The location to search for the beancount ledger file.</td>
+</tr>
+<tr>
+<td>BAPI_CACHE_INTERVAL</td>
+<td>5</td>
+<td>Seconds to wait before checking for data changes.</td>
 </tr>
 <tr>
 <td>BAPI_AUTH</td>
@@ -464,32 +494,37 @@ left for more details.</p>
 <tr>
 <td>BAPI_REDIS__CACHED</td>
 <td>False</td>
-<td>Whether the loaded value is a pickle cache</td>
+<td>Whether the loaded value is a pickle cache.</td>
+</tr>
+<tr>
+<td>BAPI_REDIS__CHANNEL</td>
+<td>beancount</td>
+<td>Channel to listen to for reloads.</td>
 </tr>
 <tr>
 <td>BAPI_REDIS__HOST</td>
 <td>localhost</td>
-<td>The hostname of the Redis server</td>
+<td>The hostname of the Redis server.</td>
 </tr>
 <tr>
 <td>BAPI_REDIS__KEY</td>
 <td>beancount</td>
-<td>The Redis key to read</td>
+<td>The Redis key to read.</td>
 </tr>
 <tr>
 <td>BAPI_REDIS__PASSWORD</td>
 <td>""</td>
-<td>The Redis server password</td>
+<td>The Redis server password.</td>
 </tr>
 <tr>
 <td>BAPI_REDIS__PORT</td>
 <td>6379</td>
-<td>The Redis server port</td>
+<td>The Redis server port.</td>
 </tr>
 <tr>
 <td>BAPI_REDIS__SSL</td>
 <td>True</td>
-<td>Whether to enable SSL for the Redis connection or not</td>
+<td>Whether to enable SSL for the Redis connection or not.</td>
 </tr>
 <tr>
 <td>BAPI_S3__BUCKET</td>

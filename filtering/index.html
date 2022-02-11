@@ -402,36 +402,36 @@ results produced.</p>
 return a list of data can be further filtered by providing a filtering
 expression. This allows, for example, to filter a response to only include
 results which fall between certain dates:</p>
-<pre><code class="language-shell">curl http://localhost:8080/directive/?filter=[?date &gt; 2022-01-01]
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl http://localhost:8080/directive/?filter<span class="o">=[</span>?date &gt; <span class="m">2022</span>-01-01<span class="o">]</span>
+</code></pre></div>
 <p>Note: Examplesa are not url-encoded for readability purposes</p>
 <p>The above example would only return entries which have a date after 2022-01-01.
 The syntax may be unfamiliar to those who have not used JMESPath, but more
 information can be found in the <a href="https://jmespath.org/tutorial.html#filter-projections">docs</a>. This query parameter provides
 substantial more flexibility with controlling the results of a query and can
 offload processing to the server and save on client bandwidth. Another example:</p>
-<pre><code class="language-shell">curl http://localhost:8080/directive/open
-curl http://localhost:8080/directive/?filter=[?ty == `Open`]
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl http://localhost:8080/directive/open
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl http://localhost:8080/directive/?filter<span class="o">=[</span>?ty <span class="o">==</span> <span class="sb">`</span>Open<span class="sb">`</span><span class="o">]</span>
+</code></pre></div>
 <p>The above two queries will produce identical results.</p>
 <h2 id="searching">Searching</h2>
 <p>In addition to filtering, some endpoints offer the ability to filter results by
 performing a full-text search against textual data. For example, to find all
 accounts which have the word <code>Assets</code> in it:</p>
-<pre><code class="language-shell">curl https://localhost:8080/account/?search=Assets
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl https://localhost:8080/account/?search<span class="o">=</span>Assets
+</code></pre></div>
 <p>To find all transactions in which the word <code>Home Depot</code> appears in the narration
 or payee fields:</p>
-<pre><code class="language-shell">curl https://localhost:8080/directive/transaction?search=Home Depot
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl https://localhost:8080/directive/transaction?search<span class="o">=</span>Home Depot
+</code></pre></div>
 <p>In some cases, both the filter and search parameters can be used:</p>
-<pre><code class="language-shell">curl https://localhost:8080/directive/transaction?filter=[?date &gt; 2022-01-01]&amp;search=Home Depot
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>curl https://localhost:8080/directive/transaction?filter<span class="o">=[</span>?date &gt; <span class="m">2022</span>-01-01<span class="o">]</span><span class="p">&amp;</span><span class="nv">search</span><span class="o">=</span>Home Depot
+</code></pre></div>
 <p>By default, the filter expression will be evaluated first and then the search
 will be applied to the results from the filter. This behavior can be changed by
 setting the <code>priority</code> query parameter:</p>
-<pre><code class="language-shell">curl https://localhost:8080/directive/transaction?filter=[?date &gt; 2022-01-01]&amp;search=Home Depot&amp;priority=search
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>curl https://localhost:8080/directive/transaction?filter<span class="o">=[</span>?date &gt; <span class="m">2022</span>-01-01<span class="o">]</span><span class="p">&amp;</span><span class="nv">search</span><span class="o">=</span>Home Depot<span class="p">&amp;</span><span class="nv">priority</span><span class="o">=</span>search
+</code></pre></div>
 <p>The above would run the search first and then filter the results from there.</p>
 
               

@@ -291,8 +291,22 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#notifications" class="md-nav__link">
+    Notifications
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cached" class="md-nav__link">
     Cached
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-script" class="md-nav__link">
+    Example Script
   </a>
   
 </li>
@@ -375,8 +389,22 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#notifications" class="md-nav__link">
+    Notifications
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cached" class="md-nav__link">
     Cached
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-script" class="md-nav__link">
+    Example Script
   </a>
   
 </li>
@@ -400,34 +428,92 @@ file from a Redis database. This is a faster alternative to S3 and also offers
 the advantage of being able to store a pickled cache to load from.</p>
 <h2 id="configuration">Configuration</h2>
 <p>To enable Redis integration set the following environment variable:</p>
-<pre><code class="language-shell">export BAPI_STORAGE=&quot;redis&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">export</span> <span class="nv">BAPI_STORAGE</span><span class="o">=</span><span class="s2">&quot;redis&quot;</span>
+</code></pre></div>
 <p>Additionally, you must configure the connection details to the Redis server:</p>
-<pre><code class="language-shell">export BAPI_REDIS__HOST=&quot;my.redis.com&quot;
-export BAPI_REDIS__PORT=12345
-export BAPI_REDIS__PASSWORD=&quot;supersecret&quot;
-export BAPI_REDIS__SSL=1 # Defaults to 1 (enable SSL)
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span> <span class="nv">BAPI_REDIS__HOST</span><span class="o">=</span><span class="s2">&quot;my.redis.com&quot;</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">export</span> <span class="nv">BAPI_REDIS__PORT</span><span class="o">=</span><span class="m">12345</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nb">export</span> <span class="nv">BAPI_REDIS__PASSWORD</span><span class="o">=</span><span class="s2">&quot;supersecret&quot;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nb">export</span> <span class="nv">BAPI_REDIS__SSL</span><span class="o">=</span><span class="m">1</span> <span class="c1"># Defaults to 1 (enable SSL)</span>
+</code></pre></div>
 <p>Then, configure the Redis key from which the API will fetch from:</p>
-<pre><code class="language-shell">export BAPI_REDIS__KEY=&quot;mykey&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">export</span> <span class="nv">BAPI_REDIS__KEY</span><span class="o">=</span><span class="s2">&quot;mykey&quot;</span>
+</code></pre></div>
 <p>Upon startup, the API will connect to the configured Redis server and pull the
 contents of the given key. The contents should be the full plain-text ledger
 contents that can be given to the Beancount loader. This will be parsed and used
 to populate the API data.</p>
+<h2 id="notifications">Notifications</h2>
+<p>The API runs a background task that frequently checks in with the configured
+storage provider to determine if the underlying data has changed. By default,
+the data is only loaded once during startup and is then cached. The storage
+provider informs the API when the underlying data changes so that the cache can
+be invalidated and the data reloaded.</p>
+<p>This is accomplished in Redis using a pubsub channel:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">export</span> <span class="nv">BAPI_REDIS__CHANNEL</span><span class="o">=</span><span class="s2">&quot;beancount&quot;</span>
+</code></pre></div>
+<p>When <em>any</em> message is received in the configured channel, the cache will be
+invalidated and the data reloaded from the configured Redis key. It's
+recommended to include publishing to this channel when you update the contents
+of the Redis key in order to force a reload. See the example section below for
+what this might look like.</p>
 <h2 id="cached">Cached</h2>
 <p>The contents of the key can alternatively be configured to be a pickle cache.
 A large portion of the startup time of the container is consumed by the
 beancount parser. This is especially true for large ledgers. The Redis key can
-be populated with a pickled version of the <code>(entries, errors, options)</code> tuple
-that is returned by most of the <a href="https://github.com/beancount/beancount/blob/master/beancount/loader.py">loader functions</a>. Once this is done,
-simply inform the API:</p>
-<pre><code class="language-shell">export BAPI_REDIS__CACHED=1
-</code></pre>
+be populated with a LZMA compressed pickled version of a <code>BeancountFile</code>
+instance. The <code>bdantic</code> package provides a method for accomplishing this:
+<code>BeancountFile.compress()</code>. It's recommended to automatically run a script
+whenever you make changes to your ledger files which can update the Redis key.
+See the example section below for what this might look like.</p>
+<p>To inform the API that the key is a cache, set the following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">export</span> <span class="nv">BAPI_REDIS__CACHED</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
 <p>When the server starts it will pull the token and unpickle the contents,
 bypassing the need to run the beancount parser and dramatically improving the
 startup time. While the benefits of this might seem low if the container is
 always running, in models</p>
+<h2 id="example-script">Example Script</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span> <span class="nn">os</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">import</span> <span class="nn">redis</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">import</span> <span class="nn">sys</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="kn">from</span> <span class="nn">beancount</span> <span class="kn">import</span> <span class="n">loader</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="kn">from</span> <span class="nn">bdantic</span> <span class="kn">import</span> <span class="n">models</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please specify the path to the beancount file to cache&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>        <span class="k">return</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    <span class="n">file</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No file found at: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>        <span class="k">return</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>    <span class="n">host</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BAPI_REDIS__HOST&quot;</span><span class="p">,</span> <span class="s2">&quot;localhost&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>    <span class="n">port</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BAPI_REDIS__PORT&quot;</span><span class="p">,</span> <span class="mi">6379</span><span class="p">)</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>    <span class="n">password</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BAPI_REDIS__PASSWORD&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>    <span class="n">key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BAPI_REDIS__KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;beancount&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>    <span class="n">chan</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BAPI_REDIS__CHANNEL&quot;</span><span class="p">,</span> <span class="s2">&quot;beancount&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>    <span class="n">ssl</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BAPI_REDIS__SSL&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>    <span class="n">r</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>        <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">),</span>
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a>        <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>        <span class="n">ssl</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">ssl</span><span class="p">),</span>
+<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a>    <span class="p">)</span>
+<a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a>
+<a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BeancountFile</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="n">file</span><span class="p">))</span><span class="o">.</span><span class="n">compress</span><span class="p">()</span>
+<a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a>    <span class="n">r</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a>    <span class="n">r</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span> <span class="s2">&quot;update&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a>
+<a id="__codelineno-5-37" name="__codelineno-5-37" href="#__codelineno-5-37"></a>
+<a id="__codelineno-5-38" name="__codelineno-5-38" href="#__codelineno-5-38"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-5-39" name="__codelineno-5-39" href="#__codelineno-5-39"></a>    <span class="n">main</span><span class="p">()</span>
+</code></pre></div>
 
               
             </article>
