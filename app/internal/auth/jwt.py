@@ -1,8 +1,9 @@
+from fastapi import Request
+from pydantic import BaseModel
+
 import jwt
 
 from ..base import BaseAuth, ValidationError
-from fastapi import Request
-from pydantic import BaseModel
 
 
 class JWTConfig(BaseModel):

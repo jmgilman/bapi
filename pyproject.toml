@@ -5,7 +5,7 @@ description = "The Beancount API (bapi) provides an HTTP API for interacting wit
 authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"
 beancount = "^2.3.4"
 fastapi = "^0.71.0"
 uvicorn = {extras = ["standard"], version = "^0.16.0"}
@@ -28,6 +28,7 @@ mkdocs-render-swagger-plugin = "^0.0.3"
 mkdocs-material = "^8.1.10"
 boto3-type-annotations-with-docs = "^0.3.1"
 types-cachetools = "^4.2.9"
+isort = "^5.10.1"
 
 [tool.black]
 line-length = 79

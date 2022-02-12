@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from bdantic import models
 from fastapi import Request
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .settings import Settings

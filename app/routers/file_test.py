@@ -1,5 +1,4 @@
 import pytest
-
 from testing import common as c
 
 

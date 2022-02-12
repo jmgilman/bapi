@@ -1,10 +1,11 @@
-from .. import dependencies as dep
-from .. import models as mod
 from bdantic import models
 from bdantic.types import ModelDirective
 from fastapi import APIRouter, Depends, Path
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse
+
+from .. import dependencies as dep
+from .. import models as mod
 
 router = APIRouter(prefix="/directive", tags=["directives"])
 

@@ -1,6 +1,5 @@
 import jmespath  # type: ignore
 import pytest
-
 from testing import common as c
 
 

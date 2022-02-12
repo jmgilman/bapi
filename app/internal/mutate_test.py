@@ -1,9 +1,10 @@
-import pytest
-
-from . import mutate
-from bdantic import models
 from datetime import date
 from decimal import Decimal
+
+import pytest
+from bdantic import models
+
+from . import mutate
 
 
 @pytest.fixture

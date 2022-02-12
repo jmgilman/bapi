@@ -1,7 +1,8 @@
-from .. import beancount
-from ..base import BaseStorage
 from bdantic import models
 from loguru import logger
+
+from .. import beancount
+from ..base import BaseStorage
 
 
 class LocalStorage(BaseStorage):

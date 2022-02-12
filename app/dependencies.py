@@ -1,7 +1,9 @@
-from .internal.mutate import DirectivesMutator, MutatePriority
+from typing import Optional
+
 from bdantic import models
 from fastapi import Depends, HTTPException, Path, Query, Request
-from typing import Optional
+
+from .internal.mutate import DirectivesMutator, MutatePriority
 
 
 async def authenticated(request: Request) -> None:

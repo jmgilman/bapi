@@ -1,7 +1,8 @@
 import os
 
-from beancount import loader
 from bdantic import models
+
+from beancount import loader
 
 
 def from_file(path: str) -> models.BeancountFile:

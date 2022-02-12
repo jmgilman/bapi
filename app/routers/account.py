@@ -1,7 +1,9 @@
-from .. import dependencies as dep
+from typing import Dict, List, cast
+
 from bdantic import models
 from fastapi import APIRouter, Depends
-from typing import cast, Dict, List
+
+from .. import dependencies as dep
 
 router = APIRouter(prefix="/account", tags=["accounts"])
 

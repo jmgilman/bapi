@@ -1,9 +1,9 @@
 import os
-import redis
 import sys
 
-from beancount import loader
+import redis
 from bdantic import models
+from beancount import loader
 
 
 def main():

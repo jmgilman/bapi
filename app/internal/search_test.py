@@ -1,8 +1,9 @@
+from datetime import date
+
 import pytest
+from bdantic import models
 
 from . import search
-from bdantic import models
-from datetime import date
 
 
 def test_index_entry():

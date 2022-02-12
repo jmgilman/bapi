@@ -1,8 +1,8 @@
 import enum
+from typing import Dict, Type
 
 from bdantic import models
 from bdantic.types import ModelDirective
-from typing import Dict, Type
 
 
 class DirectiveType(str, enum.Enum):

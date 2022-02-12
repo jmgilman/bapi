@@ -1,8 +1,9 @@
-from .. import dependencies as dep
-from bdantic import models
-from fastapi import APIRouter, Depends
 from typing import List
 
+from bdantic import models
+from fastapi import APIRouter, Depends
+
+from .. import dependencies as dep
 
 router = APIRouter(prefix="/file", tags=["file"])
 

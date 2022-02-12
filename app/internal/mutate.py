@@ -1,8 +1,10 @@
-from .search import DirectiveSearcher
-from ..models import MutatePriority
-from bdantic import models
 from dataclasses import dataclass
 from typing import Optional
+
+from bdantic import models
+
+from ..models import MutatePriority
+from .search import DirectiveSearcher
 
 
 @dataclass

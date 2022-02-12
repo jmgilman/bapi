@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import re
 import string
+from dataclasses import dataclass
+from typing import Any, Dict, Generic, List, Set, Tuple, TypeVar
 
 from bdantic import models
 from bdantic.types import ModelDirective
-from typing import Any, Dict, Generic, List, Set, Tuple, TypeVar
 
 T = TypeVar("T")
 

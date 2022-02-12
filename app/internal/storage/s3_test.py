@@ -1,8 +1,9 @@
+from unittest.mock import Mock, patch
+
 import pytest
 
-from .s3 import S3Config, S3Storage
 from ..settings import Settings
-from unittest.mock import Mock, patch
+from .s3 import S3Config, S3Storage
 
 
 @pytest.fixture

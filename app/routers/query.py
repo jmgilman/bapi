@@ -1,7 +1,7 @@
-from .. import dependencies as dep
 from bdantic import models
 from fastapi import APIRouter, Depends, Query
 
+from .. import dependencies as dep
 
 router = APIRouter(prefix="/query", tags=["query"])
 

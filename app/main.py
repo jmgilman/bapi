@@ -1,15 +1,16 @@
 import asyncio
 
-from . import logging
-from .dependencies import authenticated
-from .routers import account, directive, file, query
-from .internal.cache import Cache
-from .internal.settings import Auth, Settings
-from fastapi import FastAPI, Depends
+from fastapi import Depends, FastAPI
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from jmespath.exceptions import LexerError  # type: ignore
 from loguru import logger
+
+from . import logging
+from .dependencies import authenticated
+from .internal.cache import Cache
+from .internal.settings import Auth, Settings
+from .routers import account, directive, file, query
 
 # Create app
 app = FastAPI(

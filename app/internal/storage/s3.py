@@ -1,13 +1,14 @@
-import boto3  # type: ignore
 import os
+from pathlib import Path
+from typing import Any
+
+import boto3  # type: ignore
+from bdantic import models
+from loguru import logger
+from pydantic import BaseModel
 
 from .. import beancount
 from ..base import BaseStorage, ValidationError
-from bdantic import models
-from loguru import logger
-from pathlib import Path
-from pydantic import BaseModel
-from typing import Any
 
 
 class S3Config(BaseModel):

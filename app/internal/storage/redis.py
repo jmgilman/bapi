@@ -1,10 +1,11 @@
+from bdantic import models
+from beancount import loader
+from loguru import logger
+from pydantic import BaseModel
+
 import redis
 
 from ..base import BaseStorage
-from beancount import loader
-from bdantic import models
-from loguru import logger
-from pydantic import BaseModel
 
 
 class RedisConfig(BaseModel):
