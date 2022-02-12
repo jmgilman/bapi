@@ -6,11 +6,9 @@ from fastapi.responses import JSONResponse
 from jmespath.exceptions import LexerError  # type: ignore
 from loguru import logger
 
-from . import logging
-from .dependencies import authenticated
-from .internal.cache import Cache
-from .internal.settings import Auth, Settings
-from .routers import account, directive, file, query
+from app.api import deps
+from app.api.v1 import api
+from app.core import cache, logging, settings
 
 # Create app
 app = FastAPI(
@@ -35,8 +33,8 @@ async def startup():
     logger.info(f"{app.title} v{app.version} starting")
 
     # Retrieve settings and setup cache
-    app.state.settings = Settings()
-    app.state.cache = Cache(
+    app.state.settings = settings.Settings()
+    app.state.cache = cache.Cache(
         app.state.settings.get_storage(), app.state.settings.cache_interval
     )
 
@@ -46,19 +44,16 @@ async def startup():
     asyncio.create_task(app.state.cache.background())
 
     # Setup authentication
-    if app.state.settings.auth != Auth.none:
+    if app.state.settings.auth != settings.Auth.none:
         logger.info(f"Configuring {app.state.settings.auth} authentication")
-        app.router.dependencies.append(Depends(authenticated))
+        app.router.dependencies.append(Depends(deps.authenticated))
 
     # Add middleware
     app.add_middleware(GZipMiddleware)
 
     # Add routes
     logger.info("Configuring routes")
-    app.include_router(account.router)
-    app.include_router(directive.router)
-    app.include_router(file.router)
-    app.include_router(query.router)
+    app.include_router(api.router, prefix=f"/{app.state.settings.version}")
 
 
 # Exception handlers

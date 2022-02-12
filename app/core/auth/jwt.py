@@ -1,9 +1,8 @@
+from app.core import base
 from fastapi import Request
 from pydantic import BaseModel
 
 import jwt
-
-from ..base import BaseAuth, ValidationError
 
 
 class JWTConfig(BaseModel):
@@ -22,7 +21,7 @@ class JWTConfig(BaseModel):
     issuer: str = ""
 
 
-class JWTAuth(BaseAuth):
+class JWTAuth(base.BaseAuth):
     """Provides an interface for authenticating requests with JWT tokens."""
 
     def authenticate(self, request: Request) -> bool:
@@ -63,12 +62,18 @@ class JWTAuth(BaseAuth):
     @staticmethod
     def validate(settings) -> None:
         if settings.jwt is None:
-            raise ValidationError("Must set environment variables for JWT")
+            raise base.ValidationError(
+                "Must set environment variables for JWT"
+            )
         elif not settings.jwt.audience:
-            raise ValidationError(
+            raise base.ValidationError(
                 "Must set the JWT audience environment variable"
             )
         elif not settings.jwt.jwks:
-            raise ValidationError("Must set the JWT JWKS environment variable")
+            raise base.ValidationError(
+                "Must set the JWT JWKS environment variable"
+            )
         elif not settings.jwt.issuer:
-            raise ValidationError("Must set the issuer environment variable")
+            raise base.ValidationError(
+                "Must set the issuer environment variable"
+            )

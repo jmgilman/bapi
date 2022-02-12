@@ -3,10 +3,9 @@ from dataclasses import dataclass
 
 import cachetools
 from anyio import Lock
+from app.core import base
 from bdantic import models
 from loguru import logger
-
-from .base import BaseStorage
 
 
 @dataclass
@@ -26,10 +25,10 @@ class Cache(cachetools.Cache):
 
     interval: int
     lock: Lock
-    storage: BaseStorage
+    storage: base.BaseStorage
     _value: models.BeancountFile
 
-    def __init__(self, storage: BaseStorage, interval: int = 5):
+    def __init__(self, storage: base.BaseStorage, interval: int = 5):
         super().__init__(50)
         self.storage = storage
         self.interval = interval

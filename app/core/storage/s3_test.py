@@ -1,16 +1,15 @@
 from unittest.mock import Mock, patch
 
 import pytest
-
-from ..settings import Settings
-from .s3 import S3Config, S3Storage
+from app.core import settings
+from app.core.storage import s3
 
 
 @pytest.fixture
 def mock_settings():
-    return Settings(
+    return settings.Settings(
         entrypoint="test.beancount",
-        s3=S3Config(bucket="test"),
+        s3=s3.S3Config(bucket="test"),
         work_dir="/run",
     )
 
@@ -19,7 +18,7 @@ def mock_settings():
 @patch("pathlib.Path.__init__")
 def test_download(path_init, _, mock_settings):
     bucket = Mock()
-    loader = S3Storage(mock_settings)
+    loader = s3.S3Storage(mock_settings)
     loader.bucket = bucket
 
     path_init.return_value = None
@@ -31,12 +30,12 @@ def test_download(path_init, _, mock_settings):
     )
 
 
-@patch("app.internal.beancount.from_file")
+@patch("app.core.beancount.from_file")
 @patch("pathlib.Path.mkdir")
 @patch("pathlib.Path.__init__")
 def test_load(path_init, _, from_file, mock_settings):
     bucket = Mock()
-    loader = S3Storage(mock_settings)
+    loader = s3.S3Storage(mock_settings)
     loader.bucket = bucket
 
     path_init.return_value = None

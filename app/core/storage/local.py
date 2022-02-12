@@ -1,11 +1,9 @@
+from app.core import base, beancount
 from bdantic import models
 from loguru import logger
 
-from .. import beancount
-from ..base import BaseStorage
 
-
-class LocalStorage(BaseStorage):
+class LocalStorage(base.BaseStorage):
     """Provides an interface for loading locally stored beancount ledgers."""
 
     def load(self) -> models.BeancountFile:

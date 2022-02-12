@@ -1,7 +1,43 @@
+import enum
+
+from app.core import mutate
 from bdantic import models
+from bdantic.types import ModelDirective
 from fastapi import Depends, HTTPException, Path, Query, Request
 
-from .internal.mutate import DirectivesMutator, MutatePriority
+
+class DirectiveType(str, enum.Enum):
+    """An enum of valid values when specifying a directive type."""
+
+    balance = "balance"
+    close = "close"
+    commodity = "commodity"
+    custom = "custom"
+    document = "document"
+    event = "event"
+    note = "note"
+    open = "open"
+    pad = "pad"
+    price = "price"
+    query = "query"
+    transaction = "transaction"
+
+
+# Map DirectveType to it's actual model type
+_TYPE_MAP: dict[DirectiveType, type[ModelDirective]] = {
+    DirectiveType.balance: models.Balance,
+    DirectiveType.close: models.Close,
+    DirectiveType.commodity: models.Commodity,
+    DirectiveType.custom: models.Custom,
+    DirectiveType.document: models.Document,
+    DirectiveType.event: models.Event,
+    DirectiveType.note: models.Note,
+    DirectiveType.open: models.Open,
+    DirectiveType.pad: models.Pad,
+    DirectiveType.price: models.Price,
+    DirectiveType.query: models.Query,
+    DirectiveType.transaction: models.Transaction,
+}
 
 
 async def authenticated(request: Request) -> None:
@@ -24,6 +60,18 @@ async def get_beanfile(request: Request) -> models.BeancountFile:
         The loaded `BeancountFile` instance.
     """
     return await request.app.state.cache.beanfile()
+
+
+def get_directive_type(t: DirectiveType) -> type[ModelDirective]:
+    """Converts a `DirectiveType` to it's actual type.
+
+    Args:
+        t: The `DirectiveType` to convert.
+
+    Returns:
+        The actual directive type.
+    """
+    return _TYPE_MAP[t]
 
 
 async def get_account(
@@ -59,9 +107,9 @@ def get_directives_mutator(
         description="Text to perform a full text search with",
         example="Home Depot",
     ),
-    priority: MutatePriority = Query(
-        MutatePriority.filter,
+    priority: mutate.MutatePriority = Query(
+        mutate.MutatePriority.filter,
         description="Which operation should happen first: filter or search",
     ),
-) -> DirectivesMutator:
-    return DirectivesMutator(filter, search, priority)
+) -> mutate.DirectivesMutator:
+    return mutate.DirectivesMutator(filter, search, priority)

@@ -2,9 +2,8 @@ from typing import Dict, Tuple
 
 import jmespath  # type: ignore
 import pytest
+from app.api import deps
 from testing import common as c
-
-from ..models import DirectiveType
 
 
 @pytest.fixture
@@ -158,7 +157,7 @@ def test_directives(client):
 def test_directive(client):
     j = c.load_static_json()
 
-    for v in DirectiveType:
+    for v in deps.DirectiveType:
         expected = jmespath.search(f"[?ty == '{v.value.capitalize()}']", j)
         response = client.get(f"/directive/{v.value}")
 

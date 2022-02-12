@@ -29,7 +29,7 @@ docker run \
 It can then be queried:
 
 ```shell
-curl http://localhost:8080/directive
+curl http://localhost:8080/v1/directive
 ```
 
 The API provides several configuration options for securing access as well as
@@ -38,13 +38,13 @@ more in-depth usage and configuration information.
 
 ## Endpoints
 
-| Endpoint     | Description
-| ------------ | --------------------------------------------------------------------------------- |
-| /account     | Fetch, list, and realize all accounts in the ledger                               |
-| /directive   | Fetch all directives by type or generate Beancount syntax for each directive type |
-| /file        | Fetch the entire contents of the ledger file                                      |
-| /query       | Fetch the results of querying the Beancount data using a BQL query                |
-| /realize     | Performs a realization against the ledger                                         |
+| Endpoint        | Description
+| --------------- | ------------------------------------------------------------------------------------ |
+| /v1/account     | Fetch, list, and realize all accounts in the ledger                               |
+| /v1/directive   | Fetch all directives by type or generate Beancount syntax for each directive type |
+| /v1/file        | Fetch the entire contents of the ledger file                                      |
+| /v1/query       | Fetch the results of querying the Beancount data using a BQL query                |
+| /v1/realize     | Performs a realization against the ledger                                         |
 
 [1]: https://fastapi.tiangolo.com/
 [2]: https://beancount.github.io/docs/index.html

@@ -1,9 +1,9 @@
 from unittest import mock
 
-import redis
+from app.core import settings
+from app.core.storage.redis import RedisConfig, RedisStorage
 
-from ..settings import Settings
-from .redis import RedisConfig, RedisStorage
+import redis
 
 
 @mock.patch("bdantic.models.BeancountFile.parse")
@@ -20,21 +20,21 @@ def test_load(get, pubsub, loader, decompress, parse):
     loader.return_value = contents
     parse.return_value = "parsed"
 
-    settings = Settings()
-    settings.redis = RedisConfig()
-    storage = RedisStorage(settings)
+    stgs = settings.Settings()
+    stgs.redis = RedisConfig()
+    storage = RedisStorage(stgs)
     result = storage.load()
 
     assert result == "parsed"
-    ps.subscribe.assert_called_once_with(settings.redis.channel)
-    get.assert_called_once_with(settings.redis.key)
+    ps.subscribe.assert_called_once_with(stgs.redis.channel)
+    get.assert_called_once_with(stgs.redis.key)
     loader.assert_called_once_with("test")
     parse.assert_called_once_with(contents)
 
     # Cached
     get.return_value = "bytes"
-    settings.redis.cached = True
-    storage = RedisStorage(settings)
+    stgs.redis.cached = True
+    storage = RedisStorage(stgs)
     result = storage.load()
 
     decompress.assert_called_once_with("bytes")

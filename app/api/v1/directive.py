@@ -1,13 +1,12 @@
+from app.api import deps
+from app.core import mutate
 from bdantic import models
 from bdantic.types import ModelDirective
 from fastapi import APIRouter, Depends, Path
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse
 
-from .. import dependencies as dep
-from .. import models as mod
-
-router = APIRouter(prefix="/directive", tags=["directives"])
+router = APIRouter()
 
 
 @router.get(
@@ -19,8 +18,8 @@ router = APIRouter(prefix="/directive", tags=["directives"])
     response_model_by_alias=True,
 )
 async def directives(
-    beanfile: models.BeancountFile = Depends(dep.get_beanfile),
-    mutator: dep.DirectivesMutator = Depends(dep.get_directives_mutator),
+    beanfile: models.BeancountFile = Depends(deps.get_beanfile),
+    mutator: mutate.DirectivesMutator = Depends(deps.get_directives_mutator),
 ):
     return mutator.mutate(beanfile.entries)
 
@@ -34,13 +33,13 @@ async def directives(
     response_model_by_alias=True,
 )
 async def directive(
-    beanfile: models.BeancountFile = Depends(dep.get_beanfile),
-    directive: mod.DirectiveType = Path(
+    beanfile: models.BeancountFile = Depends(deps.get_beanfile),
+    directive: deps.DirectiveType = Path(
         "", description="The type of directive to fetch"
     ),
-    mutator: dep.DirectivesMutator = Depends(dep.get_directives_mutator),
+    mutator: mutate.DirectivesMutator = Depends(deps.get_directives_mutator),
 ):
-    typ = mod.get_directive_type(directive)
+    typ = deps.get_directive_type(directive)
     directives = beanfile.entries.by_type(typ)  # type: ignore
     return mutator.mutate(directives)
 
@@ -55,7 +54,7 @@ async def directive(
 )
 async def directive_id(
     id: str = Path("", description="The ID of the directive to fetch."),
-    beanfile: models.BeancountFile = Depends(dep.get_beanfile),
+    beanfile: models.BeancountFile = Depends(deps.get_beanfile),
 ) -> ModelDirective:
     try:
         return beanfile.entries.by_id(id)

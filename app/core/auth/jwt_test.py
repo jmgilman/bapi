@@ -1,14 +1,14 @@
 from unittest import mock
 
-import jwt
+from app.core.auth.jwt import JWTAuth
 
-from .jwt import JWTAuth
+import jwt
 
 
 @mock.patch("jwt.decode")
-@mock.patch("app.internal.settings.Settings")
+@mock.patch("app.core.settings.Settings")
 @mock.patch("fastapi.Request")
-@mock.patch("app.internal.auth.jwt.JWTAuth.client")
+@mock.patch("app.core.auth.jwt.JWTAuth.client")
 def test_authenticate(client, request, settings, decode):
     jwk = mock.Mock(jwt.PyJWKClient)
     jwk_resp = mock.Mock(jwt.PyJWK)
@@ -44,7 +44,7 @@ def test_authenticate(client, request, settings, decode):
     assert result is False
 
 
-@mock.patch("app.internal.settings.Settings")
+@mock.patch("app.core.settings.Settings")
 @mock.patch("jwt.PyJWKClient")
 def test_client(client, settings):
     settings.jwt.jwks = "https://jwks.com"

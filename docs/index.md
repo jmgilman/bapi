@@ -18,7 +18,7 @@ docker run \
 It can then be queried:
 
 ```shell
-curl http://localhost:8080/directive
+curl http://localhost:8080/v1/directive
 ```
 
 The API provides several configuration options for securing access as well as

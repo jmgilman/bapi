@@ -1,9 +1,8 @@
 from datetime import date
 
 import pytest
+from app.core import search
 from bdantic import models
-
-from . import search
 
 
 def test_index_entry():

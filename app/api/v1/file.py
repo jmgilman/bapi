@@ -1,11 +1,10 @@
 from typing import List
 
+from app.api import deps
 from bdantic import models
 from fastapi import APIRouter, Depends
 
-from .. import dependencies as dep
-
-router = APIRouter(prefix="/file", tags=["file"])
+router = APIRouter()
 
 
 @router.get(
@@ -17,7 +16,7 @@ router = APIRouter(prefix="/file", tags=["file"])
     response_model_by_alias=True,
 )
 async def file(
-    beanfile: models.BeancountFile = Depends(dep.get_beanfile),
+    beanfile: models.BeancountFile = Depends(deps.get_beanfile),
 ) -> models.BeancountFile:
     return beanfile
 
@@ -31,7 +30,7 @@ async def file(
     response_model_by_alias=True,
 )
 async def errors(
-    beanfile: models.BeancountFile = Depends(dep.get_beanfile),
+    beanfile: models.BeancountFile = Depends(deps.get_beanfile),
 ) -> list:
     return beanfile.errors
 
@@ -45,6 +44,6 @@ async def errors(
     response_model_by_alias=True,
 )
 async def options(
-    beanfile: models.BeancountFile = Depends(dep.get_beanfile),
+    beanfile: models.BeancountFile = Depends(deps.get_beanfile),
 ) -> models.file.Options:
     return beanfile.options

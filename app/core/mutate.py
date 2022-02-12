@@ -1,9 +1,15 @@
+import enum
 from dataclasses import dataclass
 
+from app.core import search
 from bdantic import models
 
-from ..models import MutatePriority
-from .search import DirectiveSearcher
+
+class MutatePriority(str, enum.Enum):
+    """An enum controlling the order in which filtering/searching occurs."""
+
+    filter = "filter"
+    search = "search"
 
 
 @dataclass
@@ -44,7 +50,7 @@ class DirectivesMutator:
             A mutated version of the directives.
         """
         if self.search_expr:
-            return DirectiveSearcher(data).search(self.search_expr)
+            return search.DirectiveSearcher(data).search(self.search_expr)
         else:
             return data
 

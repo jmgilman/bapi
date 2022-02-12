@@ -6,7 +6,7 @@ from bdantic import models
 from fastapi import Request
 
 if TYPE_CHECKING:
-    from .settings import Settings
+    from app.core.settings import Settings
 
 
 class BaseAuth:

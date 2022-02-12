@@ -1,11 +1,11 @@
 from typing import Dict, List, cast
 
+from app.api import deps
+from app.core import mutate
 from bdantic import models
 from fastapi import APIRouter, Depends
 
-from .. import dependencies as dep
-
-router = APIRouter(prefix="/account", tags=["accounts"])
+router = APIRouter()
 
 
 @router.get(
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/account", tags=["accounts"])
     response_model_by_alias=True,
 )
 async def accounts(
-    beanfile: models.BeancountFile = Depends(dep.get_beanfile),
+    beanfile: models.BeancountFile = Depends(deps.get_beanfile),
 ) -> dict[str, models.Account]:
     return beanfile.accounts
 
@@ -31,7 +31,7 @@ async def accounts(
     response_model_by_alias=True,
 )
 async def account(
-    acct: models.Account = Depends(dep.get_account),
+    acct: models.Account = Depends(deps.get_account),
 ) -> models.Account:
     return acct
 
@@ -45,7 +45,7 @@ async def account(
     response_model_by_alias=True,
 )
 async def balance(
-    acct: models.Account = Depends(dep.get_account),
+    acct: models.Account = Depends(deps.get_account),
 ) -> dict[str, models.Inventory]:
     return acct.balance
 
@@ -59,9 +59,9 @@ async def balance(
     response_model_by_alias=True,
 )
 async def transactions(
-    acct: models.Account = Depends(dep.get_account),
-    beanfile: models.BeancountFile = Depends(dep.get_beanfile),
-    mutator: dep.DirectivesMutator = Depends(dep.get_directives_mutator),
+    acct: models.Account = Depends(deps.get_account),
+    beanfile: models.BeancountFile = Depends(deps.get_beanfile),
+    mutator: mutate.DirectivesMutator = Depends(deps.get_directives_mutator),
 ) -> list[models.Transaction]:
     txns = beanfile.entries.by_account(acct.name).by_type(models.Transaction)
     return cast(list[models.Transaction], mutator.mutate(txns).__root__)

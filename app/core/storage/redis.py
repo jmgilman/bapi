@@ -1,11 +1,10 @@
+from app.core import base
 from bdantic import models
 from beancount import loader
 from loguru import logger
 from pydantic import BaseModel
 
 import redis
-
-from ..base import BaseStorage
 
 
 class RedisConfig(BaseModel):
@@ -30,7 +29,7 @@ class RedisConfig(BaseModel):
     ssl: bool = True
 
 
-class RedisStorage(BaseStorage):
+class RedisStorage(base.BaseStorage):
     """Provides an interface for loading ledgers stored in Redis."""
 
     def __init__(self, settings):

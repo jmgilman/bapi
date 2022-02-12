@@ -2,8 +2,8 @@ import json
 from functools import lru_cache
 
 import jmespath  # type: ignore
-from app.dependencies import get_beanfile
-from app.routers import account, directive, file, query
+from app.api import deps
+from app.api.v1 import api
 from bdantic import models
 from beancount import loader
 from fastapi import FastAPI
@@ -17,11 +17,8 @@ def client() -> TestClient:
         A new `TestClient` instance.
     """
     app = FastAPI()
-    app.include_router(account.router)
-    app.include_router(directive.router)
-    app.include_router(file.router)
-    app.include_router(query.router)
-    app.dependency_overrides[get_beanfile] = override
+    app.include_router(api.router)
+    app.dependency_overrides[deps.get_beanfile] = override
 
     return TestClient(app)
 

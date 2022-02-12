@@ -2,13 +2,12 @@ import os
 from enum import Enum
 from functools import cached_property
 
+from app.core.auth.jwt import JWTAuth, JWTConfig
+from app.core.base import BaseAuth, BaseStorage
+from app.core.storage.local import LocalStorage
+from app.core.storage.redis import RedisConfig, RedisStorage
+from app.core.storage.s3 import S3Config, S3Storage
 from pydantic import BaseSettings, PrivateAttr
-
-from .auth.jwt import JWTAuth, JWTConfig
-from .base import BaseAuth, BaseStorage
-from .storage.local import LocalStorage
-from .storage.redis import RedisConfig, RedisStorage
-from .storage.s3 import S3Config, S3Storage
 
 
 class Storage(str, Enum):
@@ -30,6 +29,7 @@ class Settings(BaseSettings):
     """Main configuration class for the API server.
 
     Attributes:
+        version: The API version to use
         entrypoint: The filename of the main ledger file to parse.
         work_dir: The local working directory where files will be downloaded.
         cache_interval: Seconds to wait before checking for data changes.
@@ -40,6 +40,7 @@ class Settings(BaseSettings):
         s3: Settings for configuring Amazon S3 storage.
     """
 
+    version: str = "v1"
     entrypoint: str = "main.beancount"
     work_dir: str = "/tmp/bean"
     cache_interval: int = 5

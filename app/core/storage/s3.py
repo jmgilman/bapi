@@ -3,12 +3,10 @@ from pathlib import Path
 from typing import Any
 
 import boto3  # type: ignore
+from app.core import base, beancount
 from bdantic import models
 from loguru import logger
 from pydantic import BaseModel
-
-from .. import beancount
-from ..base import BaseStorage, ValidationError
 
 
 class S3Config(BaseModel):
@@ -21,7 +19,7 @@ class S3Config(BaseModel):
     bucket: str = ""
 
 
-class S3Storage(BaseStorage):
+class S3Storage(base.BaseStorage):
     """Provides an interface for fetching Beancount ledger files from Amazon S3.
 
     This class expects the main ledger file as well as all supporting ledger
@@ -39,7 +37,7 @@ class S3Storage(BaseStorage):
         super().__init__(settings)
 
         if not self.settings.s3.bucket:
-            raise ValidationError(
+            raise base.ValidationError(
                 "Must set the S3 bucket environment variable"
             )
 
@@ -66,9 +64,9 @@ class S3Storage(BaseStorage):
     @staticmethod
     def validate(settings) -> None:
         if settings.s3 is None:
-            raise ValidationError("Must set environment variables for S3")
+            raise base.ValidationError("Must set environment variables for S3")
         elif not settings.s3.bucket:
-            raise ValidationError(
+            raise base.ValidationError(
                 "Must set the S3 bucket environment variable"
             )
 
