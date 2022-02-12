@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from bdantic import models
 
@@ -17,9 +16,9 @@ class DirectivesMutator:
         priority: Whether filtering or searching should be applied first.
     """
 
-    filter_expr: Optional[str] = None
-    search_expr: Optional[str] = None
-    priority: Optional[MutatePriority] = MutatePriority.filter
+    filter_expr: str | None = None
+    search_expr: str | None = None
+    priority: MutatePriority | None = MutatePriority.filter
 
     def mutate(self, data: models.Directives) -> models.Directives:
         """Mutates the directives using the configured filter/search expression.

@@ -32,7 +32,7 @@ async def file(
 )
 async def errors(
     beanfile: models.BeancountFile = Depends(dep.get_beanfile),
-) -> List:
+) -> list:
     return beanfile.errors
 
 

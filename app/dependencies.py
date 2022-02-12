@@ -1,5 +1,3 @@
-from typing import Optional
-
 from bdantic import models
 from fastapi import Depends, HTTPException, Path, Query, Request
 
@@ -49,12 +47,14 @@ async def get_account(
 
 
 def get_directives_mutator(
-    filter: Optional[str] = Query(
+    filter: str
+    | None = Query(
         None,
         description="JMESPath filter to filter with",
         example="[?date > `2022-01-01`]",
     ),
-    search: Optional[str] = Query(
+    search: str
+    | None = Query(
         None,
         description="Text to perform a full text search with",
         example="Home Depot",

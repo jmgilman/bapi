@@ -18,7 +18,7 @@ router = APIRouter(prefix="/account", tags=["accounts"])
 )
 async def accounts(
     beanfile: models.BeancountFile = Depends(dep.get_beanfile),
-) -> Dict[str, models.Account]:
+) -> dict[str, models.Account]:
     return beanfile.accounts
 
 
@@ -46,7 +46,7 @@ async def account(
 )
 async def balance(
     acct: models.Account = Depends(dep.get_account),
-) -> Dict[str, models.Inventory]:
+) -> dict[str, models.Inventory]:
     return acct.balance
 
 
@@ -62,6 +62,6 @@ async def transactions(
     acct: models.Account = Depends(dep.get_account),
     beanfile: models.BeancountFile = Depends(dep.get_beanfile),
     mutator: dep.DirectivesMutator = Depends(dep.get_directives_mutator),
-) -> List[models.Transaction]:
+) -> list[models.Transaction]:
     txns = beanfile.entries.by_account(acct.name).by_type(models.Transaction)
-    return cast(List[models.Transaction], mutator.mutate(txns).__root__)
+    return cast(list[models.Transaction], mutator.mutate(txns).__root__)

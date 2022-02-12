@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import string
 from dataclasses import dataclass
-from typing import Any, Dict, Generic, List, Set, Tuple, TypeVar
+from typing import Any, Generic, TypeVar
 
 from bdantic import models
 from bdantic.types import ModelDirective
@@ -21,7 +21,7 @@ class FullTextSearch:
     object. The result is a searchable index.
     """
 
-    def __init__(self, index: List[Tuple[str, Any]]):
+    def __init__(self, index: list[tuple[str, Any]]):
         """Creates a new searchable index for the given list of objects.
 
         Args:
@@ -29,8 +29,8 @@ class FullTextSearch:
                 string and the second entry is an object to associate with that
                 searchable string.
         """
-        self._entries: Dict[int, Any] = {}
-        self._index: Dict[str, Set[int]] = {}
+        self._entries: dict[int, Any] = {}
+        self._index: dict[str, set[int]] = {}
         for eid, entry in enumerate(index):
             self._index_entry(eid, entry[0], entry[1])
 
@@ -71,7 +71,7 @@ class FullTextSearch:
                 self._index[token] = set()
             self._index[token].add(entry_id)
 
-    def _tokenize(self, full_text: str) -> List[str]:
+    def _tokenize(self, full_text: str) -> list[str]:
         """Breaks up a string into its token components.
 
         Args:
@@ -99,7 +99,7 @@ class Searcher(Generic[T]):
 
     data: T
 
-    def index(self) -> List[Tuple[str, T]]:
+    def index(self) -> list[tuple[str, T]]:
         """Creates a searchable index from the configured data.
 
         Returns:
@@ -138,7 +138,7 @@ class DirectiveSearcher(Searcher):
         )
 
     def index(self):
-        index: List[Tuple[str, ModelDirective]] = []
+        index: list[tuple[str, ModelDirective]] = []
 
         for d in self.data:
             if isinstance(d, models.Balance):

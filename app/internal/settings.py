@@ -1,7 +1,6 @@
 import os
 from enum import Enum
 from functools import cached_property
-from typing import Dict, Optional, Type
 
 from pydantic import BaseSettings, PrivateAttr
 
@@ -35,7 +34,7 @@ class Settings(BaseSettings):
         work_dir: The local working directory where files will be downloaded.
         cache_interval: Seconds to wait before checking for data changes.
         storage: Where to find Beancount files.
-        auth: Type of authentication to use on endpoints.
+        auth: type of authentication to use on endpoints.
         jwt: Settings for configuring JWT authentication.
         redis: Settings for configuring Redis storage.
         s3: Settings for configuring Amazon S3 storage.
@@ -46,16 +45,16 @@ class Settings(BaseSettings):
     cache_interval: int = 5
     storage: Storage = Storage.local
     auth: Auth = Auth.none
-    jwt: Optional[JWTConfig] = None
-    redis: Optional[RedisConfig] = None
-    s3: Optional[S3Config] = None
+    jwt: JWTConfig | None = None
+    redis: RedisConfig | None = None
+    s3: S3Config | None = None
 
-    _auth: Optional[BaseAuth] = PrivateAttr(None)
+    _auth: BaseAuth | None = PrivateAttr(None)
     _storage: BaseStorage = PrivateAttr()
 
-    _auth_providers: Dict[Auth, Type[BaseAuth]] = {Auth.jwt: JWTAuth}
+    _auth_providers: dict[Auth, type[BaseAuth]] = {Auth.jwt: JWTAuth}
 
-    _storage_providers: Dict[Storage, Type[BaseStorage]] = {
+    _storage_providers: dict[Storage, type[BaseStorage]] = {
         Storage.local: LocalStorage,
         Storage.redis: RedisStorage,
         Storage.s3: S3Storage,
@@ -82,7 +81,7 @@ class Settings(BaseSettings):
         """
         return os.path.join(self.work_dir, self.entrypoint)
 
-    def get_auth(self) -> Optional[BaseAuth]:
+    def get_auth(self) -> BaseAuth | None:
         """Returns the configured authentication provider, if any.
 
         Returns:

@@ -1,15 +1,13 @@
-import jmespath  # type: ignore
 import json
+from functools import lru_cache
 
+import jmespath  # type: ignore
 from app.dependencies import get_beanfile
 from app.routers import account, directive, file, query
-
-from beancount import loader
 from bdantic import models
+from beancount import loader
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from functools import lru_cache
-from typing import Dict
 
 
 def client() -> TestClient:
@@ -43,7 +41,7 @@ def fetch_account(account: str) -> str:
 
 
 @lru_cache
-def load_file_json() -> Dict:
+def load_file_json() -> dict:
     """Loads the static.beancount full JSON dump.
 
     Returns:
@@ -53,7 +51,7 @@ def load_file_json() -> Dict:
 
 
 @lru_cache
-def load_realize_json() -> Dict:
+def load_realize_json() -> dict:
     """Loads the static.beancount realization JSON dump.
 
     Returns:
@@ -63,7 +61,7 @@ def load_realize_json() -> Dict:
 
 
 @lru_cache
-def load_static_json() -> Dict:
+def load_static_json() -> dict:
     """Loads the static.beancount directive JSON dump.
 
     Returns:

@@ -1,5 +1,4 @@
 import enum
-from typing import Dict, Type
 
 from bdantic import models
 from bdantic.types import ModelDirective
@@ -30,7 +29,7 @@ class MutatePriority(str, enum.Enum):
 
 
 # Map DirectveType to it's actual model type
-_TYPE_MAP: Dict[DirectiveType, Type[ModelDirective]] = {
+_TYPE_MAP: dict[DirectiveType, type[ModelDirective]] = {
     DirectiveType.balance: models.Balance,
     DirectiveType.close: models.Close,
     DirectiveType.commodity: models.Commodity,
@@ -46,7 +45,7 @@ _TYPE_MAP: Dict[DirectiveType, Type[ModelDirective]] = {
 }
 
 
-def get_directive_type(t: DirectiveType) -> Type[ModelDirective]:
+def get_directive_type(t: DirectiveType) -> type[ModelDirective]:
     """Converts a `DirectiveType` to it's actual type.
 
     Args:
