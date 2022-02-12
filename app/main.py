@@ -1,5 +1,6 @@
 import asyncio
 
+from . import logging
 from .dependencies import authenticated
 from .routers import account, directive, file, query
 from .internal.cache import Cache
@@ -8,7 +9,9 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from jmespath.exceptions import LexerError  # type: ignore
+from loguru import logger
 
+# Create app
 app = FastAPI(
     title="Beancount API",
     description="""
@@ -21,26 +24,36 @@ possible in responses in order to maximize integration with other platforms.
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
 )
 
+# Initialize logging
+logging.init()
+
 
 @app.on_event("startup")
 async def startup():
     """Startup handler for configuring dependencies."""
+    logger.info(f"{app.title} v{app.version} starting")
+
+    # Retrieve settings and setup cache
     app.state.settings = Settings()
     app.state.cache = Cache(
         app.state.settings.get_storage(), app.state.settings.cache_interval
     )
 
-    # Setup cache background task
+    # Run cache background task
+    logger.info(f"Using {app.state.settings.storage} storage backend")
+    logger.info("Starting cache refresh task")
     asyncio.create_task(app.state.cache.background())
 
     # Setup authentication
     if app.state.settings.auth != Auth.none:
+        logger.info(f"Configuring {app.state.settings.auth} authentication")
         app.router.dependencies.append(Depends(authenticated))
 
     # Add middleware
     app.add_middleware(GZipMiddleware)
 
     # Add routes
+    logger.info("Configuring routes")
     app.include_router(account.router)
     app.include_router(directive.router)
     app.include_router(file.router)

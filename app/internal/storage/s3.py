@@ -4,6 +4,7 @@ import os
 from .. import beancount
 from ..base import BaseStorage, ValidationError
 from bdantic import models
+from loguru import logger
 from pathlib import Path
 from pydantic import BaseModel
 from typing import Any
@@ -46,9 +47,15 @@ class S3Storage(BaseStorage):
     def load(self) -> models.BeancountFile:
         assert self.settings.s3 is not None
 
+        logger.info(
+            f"Downloading objects from {self.settings.s3.bucket} bucket"
+        )
         Path(self.settings.work_dir).mkdir(parents=True, exist_ok=True)
         for object in self.bucket.objects.all():
+            logger.info(f"Downloading {object.key}")
             self._download(object.key)
+
+        logger.info(f"Loading data from {self.settings.entry_path()}")
         return beancount.from_file(self.settings.entry_path())
 
     def changed(self, _: models.BeancountFile) -> bool:

@@ -5,6 +5,7 @@ from .base import BaseStorage
 from anyio import Lock
 from bdantic import models
 from dataclasses import dataclass
+from loguru import logger
 
 
 @dataclass
@@ -37,18 +38,23 @@ class Cache(cachetools.Cache):
         async with self.lock:
             return self["beanfile"]
 
-    async def refresh(self):
+    async def load(self):
+        logger.info("Loading cache data")
         async with self.lock:
             self["beanfile"] = self.storage.load()
+        logger.info("Cache data successfully loaded")
 
     async def background(self):
         """An async loop for managing the cache."""
         # Prime the cache
-        await self.refresh()
+        logger.info("Priming cache")
+        await self.load()
 
+        logger.info("Entering main cache loop")
         while True:
             # Check for state changes
             if self.storage.changed(self["beanfile"]):
-                await self.refresh()
+                logger.info("Cache invalidated")
+                await self.load()
 
             await asyncio.sleep(self.interval)

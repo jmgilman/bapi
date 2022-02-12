@@ -3,6 +3,7 @@ import redis
 from ..base import BaseStorage
 from beancount import loader
 from bdantic import models
+from loguru import logger
 from pydantic import BaseModel
 
 
@@ -47,6 +48,9 @@ class RedisStorage(BaseStorage):
         self.sub.subscribe(self.settings.redis.channel)
 
         if self.settings.redis.cached:
+            logger.info(
+                f"Reaching cached data from `{self.settings.redis.key}` key"
+            )
             cached = self.client.get(self.settings.redis.key)
             if not cached:
                 raise Exception(
@@ -54,6 +58,7 @@ class RedisStorage(BaseStorage):
                 )
             return models.BeancountFile.decompress(cached)
         else:
+            logger.info(f"Reaching data from `{self.settings.redis.key}` key")
             contents = self.client.get(self.settings.redis.key)
             if not contents:
                 raise Exception(
