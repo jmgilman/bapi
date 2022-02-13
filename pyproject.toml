@@ -32,6 +32,7 @@ types-cachetools = "^4.2.9"
 isort = "^5.10.1"
 mypy = "^0.931"
 coverage = "^6.3.1"
+testcontainers = "^3.4.2"
 
 [tool.black]
 line-length = 79

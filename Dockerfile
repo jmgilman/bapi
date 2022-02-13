@@ -34,8 +34,6 @@ WORKDIR $PYSETUP_PATH
 COPY ./poetry.lock ./pyproject.toml ./
 RUN poetry install --no-dev
 
-RUN mkdir /beancount
-
 # ----- DEV ----- #
 FROM python-base as development
 
@@ -56,6 +54,9 @@ RUN poetry install
 # Copy app
 COPY ./app /run/app
 WORKDIR /run
+
+# Setup work directory
+RUN mkdir -p ${BAPI_WORK_DIR}
 
 EXPOSE 8000
 ENTRYPOINT /docker-entrypoint.sh $0 $@
@@ -80,7 +81,11 @@ RUN chmod +x /docker-entrypoint.sh
 COPY ./app /run/app
 WORKDIR /run
 
+# Setup work directory
+RUN mkdir -p ${BAPI_WORK_DIR}
+RUN chown -R app:app ${BAPI_WORK_DIR}
+
 USER app
 
 ENTRYPOINT /docker-entrypoint.sh $0 $@
-CMD [ "gunicorn", "--worker-class uvicorn.workers.UvicornWorker", "--config /gunicorn_conf.py", "app.main:app"]
+CMD [ "gunicorn", "--worker-class uvicorn.workers.UvicornWorker", "--config /gunicorn_conf.py", "app.main:app" ]
