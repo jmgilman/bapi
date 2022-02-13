@@ -15,6 +15,7 @@ bdantic = "^0.2.4"
 redis = "^4.1.2"
 cachetools = "^5.0.0"
 loguru = "^0.6.0"
+gunicorn = "^20.1.0"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^21.12b0", allow-prereleases = true}
@@ -30,9 +31,13 @@ boto3-type-annotations-with-docs = "^0.3.1"
 types-cachetools = "^4.2.9"
 isort = "^5.10.1"
 mypy = "^0.931"
+coverage = "^6.3.1"
 
 [tool.black]
 line-length = 79
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -1,8 +1,9 @@
 from typing import List
 
-from app.api import deps
 from bdantic import models
 from fastapi import APIRouter, Depends
+
+from app.api import deps
 
 router = APIRouter()
 

@@ -1,9 +1,9 @@
 from unittest import mock
 
+import redis
+
 from app.core import settings
 from app.core.storage.redis import RedisConfig, RedisStorage
-
-import redis
 
 
 @mock.patch("bdantic.models.BeancountFile.parse")

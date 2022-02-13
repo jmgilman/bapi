@@ -1,10 +1,11 @@
-from app.api import deps
-from app.core import mutate
 from bdantic import models
 from bdantic.types import ModelDirective
 from fastapi import APIRouter, Depends, Path
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse
+
+from app.api import deps
+from app.core import mutate
 
 router = APIRouter()
 

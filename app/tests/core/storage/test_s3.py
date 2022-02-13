@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 
 import pytest
+
 from app.core import settings
 from app.core.storage import s3
 

@@ -1,5 +1,6 @@
-from app.api import deps
 from fastapi.testclient import TestClient
+
+from app.api import deps
 
 
 def test_directives(client: TestClient, raw_entries):

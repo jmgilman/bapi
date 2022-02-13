@@ -10,5 +10,5 @@ from app.main import app
 if __name__ == "__main__":
     app.include_router(api.router)
 
-    with open("docs/openapi.json", "w") as fd:
+    with open("../docs/openapi.json", "w") as fd:
         json.dump(app.openapi(), fd)

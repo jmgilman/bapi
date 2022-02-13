@@ -3,9 +3,10 @@ from dataclasses import dataclass
 
 import cachetools
 from anyio import Lock
-from app.core import base
 from bdantic import models
 from loguru import logger
+
+from app.core import base
 
 
 @dataclass

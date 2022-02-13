@@ -2,12 +2,13 @@ import os
 from enum import Enum
 from functools import cached_property
 
+from pydantic import BaseSettings, PrivateAttr
+
 from app.core.auth.jwt import JWTAuth, JWTConfig
 from app.core.base import BaseAuth, BaseStorage
 from app.core.storage.local import LocalStorage
 from app.core.storage.redis import RedisConfig, RedisStorage
 from app.core.storage.s3 import S3Config, S3Storage
-from pydantic import BaseSettings, PrivateAttr
 
 
 class Storage(str, Enum):

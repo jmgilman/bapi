@@ -1,9 +1,10 @@
 from typing import Dict, List, cast
 
-from app.api import deps
-from app.core import mutate
 from bdantic import models
 from fastapi import APIRouter, Depends
+
+from app.api import deps
+from app.core import mutate
 
 router = APIRouter()
 

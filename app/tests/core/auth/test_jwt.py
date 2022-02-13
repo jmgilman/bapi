@@ -1,8 +1,8 @@
 from unittest import mock
 
-from app.core.auth.jwt import JWTAuth
-
 import jwt
+
+from app.core.auth.jwt import JWTAuth
 
 
 @mock.patch("jwt.decode")

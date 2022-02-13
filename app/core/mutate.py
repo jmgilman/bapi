@@ -1,8 +1,9 @@
 import enum
 from dataclasses import dataclass
 
-from app.core import search
 from bdantic import models
+
+from app.core import search
 
 
 class MutatePriority(str, enum.Enum):

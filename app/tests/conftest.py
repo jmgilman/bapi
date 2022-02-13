@@ -5,12 +5,13 @@ from datetime import date
 from decimal import Decimal
 
 import pytest
-from app.api import deps
-from app.api.v1 import api
 from bdantic import models
 from bdantic.types import ModelDirective
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+
+from app.api import deps
+from app.api.v1 import api
 
 
 @pytest.fixture

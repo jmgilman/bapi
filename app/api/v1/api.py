@@ -1,5 +1,6 @@
-from app.api.v1 import account, directive, file, query
 from fastapi import APIRouter
+
+from app.api.v1 import account, directive, file, query
 
 router = APIRouter()
 router.include_router(account.router, prefix="/account", tags=["account"])

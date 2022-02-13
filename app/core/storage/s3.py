@@ -3,10 +3,11 @@ from pathlib import Path
 from typing import Any
 
 import boto3  # type: ignore
-from app.core import base, beancount
 from bdantic import models
 from loguru import logger
 from pydantic import BaseModel
+
+from app.core import base, beancount
 
 
 class S3Config(BaseModel):

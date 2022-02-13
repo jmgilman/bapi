@@ -1,6 +1,7 @@
-from app.api import deps
 from bdantic import models
 from fastapi import APIRouter, Depends, Query
+
+from app.api import deps
 
 router = APIRouter()
 

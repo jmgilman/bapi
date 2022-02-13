@@ -1,8 +1,8 @@
-from app.core import base
+import jwt
 from fastapi import Request
 from pydantic import BaseModel
 
-import jwt
+from app.core import base
 
 
 class JWTConfig(BaseModel):

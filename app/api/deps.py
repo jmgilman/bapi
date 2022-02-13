@@ -1,9 +1,10 @@
 import enum
 
-from app.core import mutate
 from bdantic import models
 from bdantic.types import ModelDirective
 from fastapi import Depends, HTTPException, Path, Query, Request
+
+from app.core import mutate
 
 
 class DirectiveType(str, enum.Enum):
