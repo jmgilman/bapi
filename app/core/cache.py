@@ -47,10 +47,6 @@ class Cache(cachetools.Cache):
 
     async def background(self):
         """An async loop for managing the cache."""
-        # Prime the cache
-        logger.info("Priming cache")
-        await self.load()
-
         logger.info("Entering main cache loop")
         while True:
             # Check for state changes

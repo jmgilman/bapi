@@ -8,7 +8,7 @@ from loguru import logger
 
 from app.api import deps
 from app.api.v1 import api
-from app.core import cache, logging, settings
+from app.core import base, cache, logging, settings
 
 # Create app
 app = FastAPI(
@@ -38,8 +38,16 @@ async def startup():
         app.state.settings.get_storage(), app.state.settings.cache_interval
     )
 
-    # Run cache background task
+    # Prime the cache
     logger.info(f"Using {app.state.settings.storage} storage backend")
+    logger.info("Priming cache")
+    try:
+        await app.state.cache.load()
+    except base.StorageLoadError as e:
+        logger.critical(f"The storage backend failed to load: {str(e)}")
+        exit(1)
+
+    # Run cache background task
     logger.info("Starting cache refresh task")
     asyncio.create_task(app.state.cache.background())
 

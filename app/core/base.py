@@ -77,6 +77,12 @@ class BaseStorage:
         pass
 
 
+class StorageLoadError(Exception):
+    """Raised when a storage backend fails to load data."""
+
+    pass
+
+
 class ValidationError(Exception):
     """Raised when configured settings fail to validate."""
 

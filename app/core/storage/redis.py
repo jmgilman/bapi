@@ -35,36 +35,42 @@ class RedisStorage(base.BaseStorage):
     def __init__(self, settings):
         super().__init__(settings)
 
+        self.host = self.settings.redis.host
+        self.port = self.settings.redis.port
+        self.password = self.settings.redis.password
+        self.channel = self.settings.redis.channel
+        self.ssl = self.settings.redis.ssl
+
         self.client = redis.Redis(
-            host=self.settings.redis.host,
-            port=self.settings.redis.port,
-            password=self.settings.redis.password,
-            ssl=self.settings.redis.ssl,
+            host=self.host,
+            port=self.port,
+            password=self.password,
+            ssl=self.ssl,
         )
 
     def load(self) -> models.BeancountFile:
         assert self.settings.redis is not None
-        self.sub = self.client.pubsub()
-        self.sub.subscribe(self.settings.redis.channel)
+        logger.info(f"Using Redis server at {self.host}:{self.port}")
+
+        logger.info(f"Subscribing to {self.channel} channel for updates")
+        try:
+            self.sub = self.client.pubsub()
+            self.sub.subscribe(self.channel)
+        except redis.exceptions.ConnectionError as e:
+            raise base.StorageLoadError(
+                f"Failed subscribing to channel: {str(e)}"
+            )
+
+        logger.info(f"Reading data from `{self.settings.redis.key}` key")
+        try:
+            contents = self.client.get(self.settings.redis.key)
+        except redis.exceptions.ConnectionError as e:
+            raise base.StorageLoadError(f"Failed reading data: {str(e)}")
 
         if self.settings.redis.cached:
-            logger.info(
-                f"Reaching cached data from `{self.settings.redis.key}` key"
-            )
-            cached = self.client.get(self.settings.redis.key)
-            if not cached:
-                raise Exception(
-                    "Redis returned no data with the configured key"
-                )
-            return models.BeancountFile.decompress(cached)
+            logger.info("Decompressing pickled data")
+            return models.BeancountFile.decompress(contents)
         else:
-            logger.info(f"Reaching data from `{self.settings.redis.key}` key")
-            contents = self.client.get(self.settings.redis.key)
-            if not contents:
-                raise Exception(
-                    "Redis returned no data with the configured key"
-                )
-
             return models.BeancountFile.parse(
                 loader.load_string(contents.decode("utf-8"))
             )
